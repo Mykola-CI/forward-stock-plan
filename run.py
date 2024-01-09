@@ -14,6 +14,30 @@ SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('forward_stock_plan')
 
+# Other constants
+PLANTERS = [
+    'Roasted Almonds',
+    'Salted Peanuts',
+    'Mixed Nuts',
+    'Honey Roasted Peanuts',
+    'Cheez Balls',
+    'Cashew'
+]
+
+RITTER = [
+    'Rum Raisings Hazelnut',
+    'Marzipan',
+    'Whole Hazelnut',
+    'Honey Salted Almonds'
+]
+
+WORKSHEET_TITLES = [
+    'Weekly Sales',
+    'Weekly Stocks',
+    'Actual Deliveries',
+    'Orders'
+]
+
 
 print(f'Welcome to the Forward Stock Plan Automation')
 
@@ -30,27 +54,22 @@ class ProductItem:
 
         return item_cell_value
 
-class RowValues:
-    def __init__(self, row_values):
-        self.row_values = row_values
+class RowColumnValues:
+    def __init__(self, value_sets):
+        self.value_sets = value_sets
     
-    def get_row_values(self):
-        return self.row_values
+    def get_value_ranges(self):
+        return self.value_sets
 
-# item_sale_at_week = ProductItem('Mixed Nuts', 12, 'Weekly Sales').find_cell_value()    
-# print(item_sale_at_week)
+start_number = 9
+end_number = 12
 
-# item_stock_at_week = ProductItem('Mixed Nuts', 12, 'Weekly Stocks').find_cell_value()  
-# print(item_stock_at_week)
-
-get_row_range = RowValues([
-    ProductItem('Mixed Nuts', 9, 'Weekly Sales').find_cell_value(),
-    ProductItem('Mixed Nuts', 10, 'Weekly Sales').find_cell_value(),
-    ProductItem('Mixed Nuts', 11, 'Weekly Sales').find_cell_value(),
-    ProductItem('Mixed Nuts', 12, 'Weekly Sales').find_cell_value()
+get_row_range = RowColumnValues([
+    ProductItem(PLANTERS[2], number, WORKSHEET_TITLES[1]).find_cell_value()
+    for number in range(start_number, end_number + 1)
 ])
-item_row = get_row_range.get_row_values()
-item_sale_row = [int(i) for i in item_row]
+item_row = get_row_range.get_value_ranges()
+item_sale_row = [int(i) if isinstance(i, str) else 0 for i in item_row]
 mean_weekly_sale = math.ceil(statistics.mean(item_sale_row))
 print(item_sale_row)
 print(mean_weekly_sale)
