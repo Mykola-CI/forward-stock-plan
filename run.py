@@ -15,6 +15,7 @@ GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('forward_stock_plan')
 
 # Other constants
+PRODUCT_RANGE = ['PLANTERS', 'RITTER SPORT']
 PLANTERS = [
     'Roasted Almonds',
     'Salted Peanuts',
@@ -38,40 +39,46 @@ WORKSHEET_TITLES = [
     'Orders'
 ]
 
+WEEKS_TO_FORECAST = 8
+
 
 print(f'Welcome to the Forward Stock Plan Automation')
 
-class ProductItem:
-    def __init__(self, item_name, week_num, get_worksheet):
-        self.item_name = item_name
-        self.week_num = week_num
-        self.get_worksheet = SHEET.worksheet(get_worksheet)
+week_of_year = 4
 
-    def find_cell_value(self):
-        item_row = self.get_worksheet.find(self.item_name)
-        item_column = self.get_worksheet.find(str(self.week_num), in_row=8)
-        item_cell_value = self.get_worksheet.cell(item_row.row, item_column.col).value
+def calculate_average_sales(product, week_number):
 
-        return item_cell_value
+    print("Calc ave sales pulling data from the Weekly Sales worksheet")
+    sales = SHEET.worksheet(WORKSHEET_TITLES[0]).get_all_values()
+    print("Data obtained from the Weekly Sales worksheet")
+    first_row = sales[0]
+    current_week_index = first_row.index(str(week_number))
 
-class RowColumnValues:
-    def __init__(self, value_sets):
-        self.value_sets = value_sets
-    
-    def get_value_ranges(self):
-        return self.value_sets
+    product_range_sale = [sublist for sublist in sales if product in sublist]
+    retrospective_sale_strings = [
+        sublist[max(0, current_week_index - 4):current_week_index + 1] 
+        for sublist in product_range_sale
+    ]
 
-start_number = 9
-end_number = 12
+    retrospective_sales = [
+        list(map(int, sublist)) for sublist in retrospective_sale_strings
+    ]
 
-get_row_range = RowColumnValues([
-    ProductItem(PLANTERS[2], number, WORKSHEET_TITLES[1]).find_cell_value()
-    for number in range(start_number, end_number + 1)
-])
-item_row = get_row_range.get_value_ranges()
-item_sale_row = [int(i) if isinstance(i, str) else 0 for i in item_row]
-mean_weekly_sale = math.ceil(statistics.mean(item_sale_row))
-print(item_sale_row)
-print(mean_weekly_sale)
+    average_sales = [
+        math.ceil(statistics.mean(lst)) for lst in retrospective_sales
+    ]
+
+    return average_sales
+
+
+test_sales = calculate_average_sales(PRODUCT_RANGE[1], week_of_year)
+
+sales_forecast = [[mean]*WEEKS_TO_FORECAST for mean in test_sales]
+print(f'The new list of forecasted sales:\n {sales_forecast}')
+
+
+
+
+
 
 
