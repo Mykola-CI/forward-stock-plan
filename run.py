@@ -151,50 +151,38 @@ def update_sales_forecast(product, week_number):
     return None
 
 
-def calculate_forward_stocks(product, week_number):
+def update_forward_stocks(product, week_number):
+
+    print("Retrieving and processing data from the spreadsheet...")
 
     stocks = Worksheets(WORKSHEET_TITLES[1])
-    stocks_values_all = stocks.get_values()
+    stocks_values = stocks.cut_off_past_weeks(product, week_number - 1)
     sales = Worksheets(WORKSHEET_TITLES[0])
-    sales_values_all = sales.get_values()
+    sales_values = sales.cut_off_past_weeks(product, week_number - 1)
     deliveries = Worksheets(WORKSHEET_TITLES[2])
-    deliveries_values_all = deliveries.get_values()
-    
-    current_week_index = stocks.get_week_index(week_number)
+    deliveries_values = deliveries.cut_off_past_weeks(product, week_number - 1)
 
-    stocks_values_product = [
-        sublist for sublist in stocks_values_all if product in sublist
-    ]
-    sales_values_product = [
-        sublist for sublist in sales_values_all if product in sublist
-    ]
-    deliveries_values_product = [
-        sublist for sublist in deliveries_values_all if product in sublist
-    ]
+    print("Calculating forward stocks...")
 
-    stocks_values = [row[current_week_index + 2:] for row in stocks_values_product]
+    forward_stocks = []
+    for i in range(len(stocks_values)):
+        forward_stocks_row = [stocks_values[i][0] - sum(sales_values[i][:j+1]) + sum(deliveries_values[i][:j+1]) for j in range(len(sales_values[i])-1)]
 
+        forward_stocks.append(forward_stocks_row)
 
+    print("Updating the spreadsheet...")
 
-    for row in stocks_values:
-        for cell in row:
-            if cell == '':
-                cell = 0
-            
+    update_worksheet_data(WORKSHEET_TITLES[1], product, week_number, forward_stocks)
 
     return None
 
 week_of_year = 1
 
 print(f'Welcome to the Forward Stock Plan Automation')
+x = 0
+update_forward_stocks(PRODUCT_RANGE[x], week_of_year)
+print(f"Forward Stock Plan has been updated for: {PRODUCT_RANGE[x]} \n from week: {week_of_year} and onward \n")
 
-# update_sales_forecast(PRODUCT_RANGE[0], week_of_year)
-# print(f"Sales forecast has been updated for the week: {week_of_year}")
-
-test_stocks = Worksheets(WORKSHEET_TITLES[1])
-test_list_numbers = test_stocks.cut_off_past_weeks(PRODUCT_RANGE[0], week_of_year)
-
-# print(test_list_numbers)
 
 
 
