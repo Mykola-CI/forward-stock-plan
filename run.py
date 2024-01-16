@@ -14,8 +14,11 @@ SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('forward_stock_plan')
 
-# Other constants
+# Other constants:
+
 PRODUCT_RANGE = ['PLANTERS', 'RITTER SPORT']
+
+# PLANTERS PRODUCTS
 PLANTERS = [
     'Roasted Almonds',
     'Salted Peanuts',
@@ -25,8 +28,7 @@ PLANTERS = [
     'Cashew'
 ]
 
-PLANTERS_START_ROW = 3
-
+# RITTER SPORT PRODUCTS
 RITTER = [
     'Rum Raisings Hazelnut',
     'Marzipan',
@@ -34,6 +36,15 @@ RITTER = [
     'Honey Salted Almonds'
 ]
 
+# UNITS PER CARTON
+PLANTERS_UPC = 6
+RITTER_UPC = 10
+
+# LEAD TIMES
+PLANTERS_LT = 3
+RITTER_LT = 2
+
+# WORKSHEET TITLES IN THE SPREADSHEET
 WORKSHEET_TITLES = [
     'Weekly Sales',
     'Weekly Stocks',
@@ -41,12 +52,25 @@ WORKSHEET_TITLES = [
     'Orders'
 ]
 
+# The row number where the Planters products start
+PLANTERS_START_ROW = 3
+
+# Number of weeks to update forecasts
 WEEKS_TO_FORECAST = 8
 
+# The row number where the weeks are listed
 WEEKS_ROW_NUMBER = 1
 
+# MINIMUM ORDER QUANTITY IN RELATION TO SALES
+SAFETY_MARGIN = 2
+
+# MINIMUM STOCK LEVEL IN RELATION TO SALES
+MIN_STOCK_LEVEL = 1.5
 
 class Worksheets:
+    """
+    Class for retrieving data from the worksheets in the spreadsheet
+    """
     def __init__(self, worksheet_to_get):
         self.worksheet_to_get = worksheet_to_get
 
@@ -77,7 +101,6 @@ def update_worksheet_data(worksheet, product, week_number, table_data):
     """
     Utility function. Updates given worksheet for a given Product Range with 
     data matrix 'table_data' passed in the form of list of lists. 
-    Cells are updated from given 'Week Number + 1' in top left position
     """
     worksheet_instance = Worksheets(worksheet)
     gspread_object = worksheet_instance.get_gspread_worksheet()
@@ -105,18 +128,18 @@ def update_worksheet_data(worksheet, product, week_number, table_data):
     return None
 
 def r1c1_to_a1(row, col):
-
+    """
+    Utility function. Converts given row and column numbers to A1 notation
+    """
     cell = gspread.utils.rowcol_to_a1(row, col)
 
     return cell
 
-def calculate_average_sales(product, week_number):
 
-    sales = Worksheets(WORKSHEET_TITLES[0])
-    sales_values = sales.get_values()
-
-    current_week_index = sales.get_week_index(week_number)
-
+def calculate_average_sales(product, sales_values, current_week_index):
+    """
+    Calculates average sales for a given product range and week number
+    """
     product_range_sale = [
         sublist for sublist in sales_values if product in sublist
     ]
@@ -138,9 +161,16 @@ def calculate_average_sales(product, week_number):
 
 
 def update_sales_forecast(product, week_number):
+    """
+    Updates the sales spreadsheet for a given product range and week number
+    """
+    sales = Worksheets(WORKSHEET_TITLES[0])
+    sales_values = sales.get_values()
+
+    current_week_index = sales.get_week_index(week_number)
 
     retrospective_average_sales = calculate_average_sales(
-        product, week_number)
+        product, sales_values, current_week_index)
 
     sales_forecast = [
         [mean]*WEEKS_TO_FORECAST for mean in retrospective_average_sales
@@ -151,16 +181,11 @@ def update_sales_forecast(product, week_number):
     return None
 
 
-def update_forward_stocks(product, week_number):
-
-    print("Retrieving and processing data from the spreadsheet...")
-
-    stocks = Worksheets(WORKSHEET_TITLES[1])
-    stocks_values = stocks.cut_off_past_weeks(product, week_number - 1)
-    sales = Worksheets(WORKSHEET_TITLES[0])
-    sales_values = sales.cut_off_past_weeks(product, week_number - 1)
-    deliveries = Worksheets(WORKSHEET_TITLES[2])
-    deliveries_values = deliveries.cut_off_past_weeks(product, week_number - 1)
+def calculate_forward_stocks(stocks_values, sales_values, deliveries_values):
+    """
+    Calculate and compose forward stock plan based on sales, deliveries and 
+    stocks data
+    """
 
     print("Calculating forward stocks...")
 
@@ -169,20 +194,82 @@ def update_forward_stocks(product, week_number):
         forward_stocks_row = [stocks_values[i][0] - sum(sales_values[i][:j+1]) + sum(deliveries_values[i][:j+1]) for j in range(len(sales_values[i])-1)]
 
         forward_stocks.append(forward_stocks_row)
+    
+    forward_stock_plan = [[0 if num < 0 else num for num in sublist] for sublist in forward_stocks]
 
-    print("Updating the spreadsheet...")
+    return forward_stock_plan
 
-    update_worksheet_data(WORKSHEET_TITLES[1], product, week_number, forward_stocks)
+
+def update_forward_stocks(product, week_number):
+
+    print("Forward Stocks retrieving and processing data from the spreadsheet...")
+
+    stocks = Worksheets(WORKSHEET_TITLES[1])
+    stocks_values = stocks.cut_off_past_weeks(product, week_number - 1)
+    sales = Worksheets(WORKSHEET_TITLES[0])
+    sales_values = sales.cut_off_past_weeks(product, week_number - 1)
+    deliveries = Worksheets(WORKSHEET_TITLES[2])
+    deliveries_values = deliveries.cut_off_past_weeks(product, week_number - 1)
+
+    forward_stock_plan = calculate_forward_stocks(stocks_values, sales_values, deliveries_values)
+
+    print(f"Updating forward stocks for {product} from week {week_number} onwards...")
+    update_worksheet_data(WORKSHEET_TITLES[1], product, week_number, forward_stock_plan)
+
+    print("Forward stocks have been updated.")
 
     return None
+
+def place_orders(product, week_number):
+
+    print("Place_orders retrieving and processing data from the spreadsheet...")
+
+    forward_stocks = Worksheets(WORKSHEET_TITLES[1])
+    forward_stocks_values = forward_stocks.cut_off_past_weeks(product, week_number-1)
+    deliveries = Worksheets(WORKSHEET_TITLES[2])
+    deliveries_values = deliveries.cut_off_past_weeks(product, week_number-1)
+    # orders = Worksheets(WORKSHEET_TITLES[3])
+    # orders_values = orders.cut_off_past_weeks(product, week_number-1)
+    sales = Worksheets(WORKSHEET_TITLES[0])
+    sales_values = sales.cut_off_past_weeks(product, week_number-1)
+
+    print("Place_orders - calculating orders...")
+
+    if product == PRODUCT_RANGE[0]:
+        lead_time = PLANTERS_LT
+    elif product == PRODUCT_RANGE[1]:
+        lead_time = RITTER_LT
+    else:
+        print('Product range input error or the Product range does not exist')
+
+    next_order = []
+    for i in range(len(forward_stocks_values)):
+        orders_row = [0]*len(forward_stocks_values[i])
+        for j in range(len(forward_stocks_values[i])):
+            if j + lead_time < len(deliveries_values[i]):
+                for k in range(j + 1, len(forward_stocks_values[i])):
+                    if (temp := forward_stocks_values[i][k-1] + deliveries_values[i][k - 1] - sales_values[i][k - 1]) < 0:
+                        forward_stocks_values[i][k] = 0
+                    else:
+                        forward_stocks_values[i][k] = temp
+                ave_sale_lead_time = math.ceil(statistics.mean(sales_values[i][j:j+lead_time+1]))
+                if forward_stocks_values[i][j] < ave_sale_lead_time * lead_time * MIN_STOCK_LEVEL:
+                    orders_row[j] = max(ave_sale_lead_time * SAFETY_MARGIN * lead_time - forward_stocks_values[i][j + lead_time], 0)
+                    deliveries_values[i][j+lead_time] = orders_row[j]
+                else:
+                    orders_row[j] = 0
+            else:
+                orders_row[j] = round(sales_values[i][j] * SAFETY_MARGIN * lead_time) - sum(sales_values[i][j+1:j+3])    
+        next_order.append(orders_row)
+
+    print(f'next_order \n {next_order} \n')
+    print(f'deliveries_values \n {deliveries_values} \n')
+    print(f'forward_stocks_values \n {forward_stocks_values} \n')
 
 week_of_year = 1
 
 print(f'Welcome to the Forward Stock Plan Automation')
-x = 0
-update_forward_stocks(PRODUCT_RANGE[x], week_of_year)
-print(f"Forward Stock Plan has been updated for: {PRODUCT_RANGE[x]} \n from week: {week_of_year} and onward \n")
 
-
+# place_orders(PRODUCT_RANGE[0], week_of_year)
 
 
