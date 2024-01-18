@@ -81,6 +81,7 @@ class Worksheets:
         return self.retrieved_values
     
     def get_week_index(self, week_number):
+        self.get_values()
         first_row = self.retrieved_values[0]
         current_week_index = first_row.index(str(week_number))
         return current_week_index
@@ -193,11 +194,14 @@ def calculate_forward_stocks(stocks_values, sales_values, deliveries_values):
 
     forward_stocks = []
     for i in range(len(stocks_values)):
-        forward_stocks_row = [stocks_values[i][0] - sum(sales_values[i][:j+1]) + sum(deliveries_values[i][:j+1]) for j in range(len(sales_values[i])-1)]
+        forward_stocks_row = [stocks_values[i][0] - sum(sales_values[i][:j+1]) 
+            + sum(deliveries_values[i][:j+1]) 
+            for j in range(len(sales_values[i])-1)]
 
         forward_stocks.append(forward_stocks_row)
     
-    forward_stock_plan = [[0 if num < 0 else num for num in sublist] for sublist in forward_stocks]
+    forward_stock_plan = [[0 if num < 0 else num for num in sublist] 
+                    for sublist in forward_stocks]
 
     return forward_stock_plan
 
@@ -224,18 +228,18 @@ def update_forward_stocks(product, week_number):
 
 def calculate_orders(product, week_number):
 
-    print("Place_orders retrieving and processing data from the spreadsheet...")
+    print("Orders retrieving and processing data from the spreadsheet...")
 
-    forward_stocks = Worksheets(WORKSHEET_TITLES[1])
-    forward_stocks_values = forward_stocks.cut_off_past_weeks(product, week_number-1)
-    deliveries = Worksheets(WORKSHEET_TITLES[2])
-    deliveries_values = deliveries.cut_off_past_weeks(product, week_number-1)
+    forward_stocks_object = Worksheets(WORKSHEET_TITLES[1])
+    forward_stocks_values = forward_stocks_object.cut_off_past_weeks(product, week_number-1)
+    deliveries_object = Worksheets(WORKSHEET_TITLES[2])
+    deliveries_values = deliveries_object.cut_off_past_weeks(product, week_number-1)
     # orders = Worksheets(WORKSHEET_TITLES[3])
     # orders_values = orders.cut_off_past_weeks(product, week_number-1)
-    sales = Worksheets(WORKSHEET_TITLES[0])
-    sales_values = sales.cut_off_past_weeks(product, week_number-1)
+    sales_object = Worksheets(WORKSHEET_TITLES[0])
+    sales_values = sales_object.cut_off_past_weeks(product, week_number-1)
 
-    print("Place_orders - calculating orders...")
+    print("Calculating orders...")
 
     if product == PRODUCT_RANGE[0]:
         lead_time = PLANTERS_LT
@@ -245,51 +249,67 @@ def calculate_orders(product, week_number):
         print('Product range input error or the Product range does not exist')
 
     next_order = []
-    for i in range(len(forward_stocks_values)):
-        orders_row = [0]*len(forward_stocks_values[i])
+    deliveries = []
+    stocks = []
+    for i in range(len(sales_values)):
+        orders_row = [0]*len(sales_values[i])
+        deliveries_row = [0]*len(sales_values[i])
+        deliveries_row[:lead_time] = deliveries_values[i][:lead_time]
+        stocks_row = [0]*len(sales_values[i])
+        stocks_row[0] = forward_stocks_values[i][0]
 
-        for k in range(1, len(forward_stocks_values[i])):
-            if forward_stocks_values[i][k-1] <= sales_values[i][k - 1]:
-                forward_stocks_values[i][k] = deliveries_values[i][k - 1]
+        for k in range(1, len(sales_values[i])):
+            if stocks_row[k-1] <= sales_values[i][k - 1]:
+                stocks_row[k] = deliveries_row[k - 1]
             else:
-                forward_stocks_values[i][k] = forward_stocks_values[i][k - 1] + deliveries_values[i][k - 1] - sales_values[i][k - 1]
+                stocks_row[k] = stocks_row[k - 1] + deliveries_row[k - 1] - sales_values[i][k - 1]
 
-        for j in range(len(forward_stocks_values[i])):
-
-            ave_sale_lead_time = math.ceil(statistics.mean(sales_values[i][j:j+lead_time+1]))
-            if forward_stocks_values[i][j] < ave_sale_lead_time * (lead_time+1) * MIN_STOCK_LEVEL:
+        for j in range(len(sales_values[i])):
+            ave_sale_lead_time = math.ceil(statistics.mean(sales_values[i][j:j+lead_time+2]))
+            
+            if stocks_row[j] < ave_sale_lead_time * (lead_time+1) * MIN_STOCK_LEVEL:
                 
-                if j + lead_time + 1 < len(forward_stocks_values[i]):
-                    orders_row[j] = max(math.ceil(ave_sale_lead_time * SAFETY_MARGIN * (lead_time+1)) - forward_stocks_values[i][j + lead_time + 1], 0)
-                    deliveries_values[i][j+lead_time] = orders_row[j]
+                if j + lead_time + 1 < len(sales_values[i]): 
+                    orders_row[j] = max(math.ceil(ave_sale_lead_time * SAFETY_MARGIN * (lead_time+1)) - stocks_row[j + lead_time + 1], 0)
+                    deliveries_row[j+lead_time] = orders_row[j]
 
-                    if deliveries_values[i][j+lead_time] != 0:
-                        for k in range(j + lead_time, len(forward_stocks_values[i])):
-                            if forward_stocks_values[i][k-1] <= sales_values[i][k - 1]:
-                                forward_stocks_values[i][k] = deliveries_values[i][k - 1]
+                    if deliveries_row[j+lead_time] != 0:
+                        for k in range(j + lead_time, len(sales_values[i])):
+                            if stocks_row[k-1] <= sales_values[i][k - 1]:
+                                stocks_row[k] = deliveries_row[k - 1]
                             else:
-                                forward_stocks_values[i][k] = forward_stocks_values[i][k - 1] + deliveries_values[i][k - 1] - sales_values[i][k - 1]
+                                stocks_row[k] = stocks_row[k - 1] + deliveries_row[k - 1] - sales_values[i][k - 1]
 
-                elif j + lead_time + 1 == len(forward_stocks_values[i]):
-                    orders_row[j] = math.ceil(sales_values[i][j] * SAFETY_MARGIN * (lead_time+1)) - (forward_stocks_values[i][j] - sales_values[i][j]*(lead_time+1))
-                    deliveries_values[i][j+lead_time] = orders_row[j]
+                elif j + lead_time + 1 == len(sales_values[i]):
+                    orders_row[j] = max(math.ceil(ave_sale_lead_time * (lead_time+1) * SAFETY_MARGIN) - (stocks_row[j + lead_time] - sales_values[i][j+lead_time] + deliveries_row[j+lead_time]), 0)
+                    deliveries_row[j+lead_time] = orders_row[j]
                 else:
-                    orders_row[j] = math.ceil(sales_values[i][j] * SAFETY_MARGIN * (lead_time+1)) - (forward_stocks_values[i][j] - sales_values[i][j]*(lead_time+1))       
+                    orders_row[j] = max(math.ceil(ave_sale_lead_time * (lead_time+1) * SAFETY_MARGIN) - (stocks_row[j] - ave_sale_lead_time*(lead_time+1) + sum(orders_row[j-lead_time:j+1])), 0)
+                    
             else:
                 orders_row[j] = 0
-             
+
         next_order.append(orders_row)
+        deliveries.append(deliveries_row)
+        stocks.append(stocks_row)
 
-    print(f'next_order \n {next_order} \n')
-    print(f'deliveries_values \n {deliveries_values} \n')
-    print(f'forward_stocks_values \n {forward_stocks_values} \n')
+    return next_order, deliveries, stocks
 
-    return next_order, deliveries_values, forward_stocks_values
-
-week_of_year = 40
+week_of_year = 1
 
 print(f'Welcome to the Forward Stock Plan Automation')
 
-# calculate_orders(PRODUCT_RANGE[1], week_of_year)
 
 
+order_plan, deliveries, stock_plan = calculate_orders(PRODUCT_RANGE[1], week_of_year)
+print('Orders, Deliveries and Forward Stocks have been calculated')
+
+
+# update_worksheet_data(WORKSHEET_TITLES[3], PRODUCT_RANGE[1], week_of_year - 1, order_plan)
+# print('Orders have been updated to the worksheet')
+
+# update_worksheet_data(WORKSHEET_TITLES[2], PRODUCT_RANGE[1], week_of_year - 1, deliveries)
+# print('Deliveries have been updated to the worksheet')
+
+# update_worksheet_data(WORKSHEET_TITLES[1], PRODUCT_RANGE[1], week_of_year - 1, stock_plan)
+# print('FSP have been updated to the worksheet')
