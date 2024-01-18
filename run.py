@@ -124,6 +124,7 @@ def update_worksheet_data(worksheet, product, week_number, table_data):
     end_row = start_row + len(product)
     end_column = start_column + len(table_data[0])
     end_cell_position = r1c1_to_a1(end_row, end_column)
+
     cells_range = start_cell_position + ':' + end_cell_position
 
     gspread_object.update(cells_range, table_data)
@@ -295,21 +296,41 @@ def calculate_orders(product, week_number):
 
     return next_order, deliveries, stocks
 
+
+def input_sales_for_week():
+    """
+    Prompts the user for sales data for a given week number and returns
+    """
+    while True:
+        try:
+            week_number = int(input("Enter the week number: "))
+            if 1 <= week_number <= 52:
+                break
+            else:
+                print("Sorry. Week number must be between 1 and 52.")
+        except ValueError as err:
+            print(f"You entered {err}. Please enter a number between 1 and 52.")
+
+    weekly_sales_data = {}
+
+    for item in PLANTERS:
+        while True:
+            try:
+                amount = int(input(f"Enter the amount for '{item}' sold in week {week_number}: "))
+                weekly_sales_data[item] = amount
+                break
+            except ValueError as er:
+                print(f"You entered {er}. Please enter an integer.")
+
+    return {week_number: weekly_sales_data}
+
+
 week_of_year = 1
 
 print(f'Welcome to the Forward Stock Plan Automation')
 
+sales_data = input_sales_for_week()
 
+# Print the data object for verification
+print(sales_data)
 
-order_plan, deliveries, stock_plan = calculate_orders(PRODUCT_RANGE[1], week_of_year)
-print('Orders, Deliveries and Forward Stocks have been calculated')
-
-
-# update_worksheet_data(WORKSHEET_TITLES[3], PRODUCT_RANGE[1], week_of_year - 1, order_plan)
-# print('Orders have been updated to the worksheet')
-
-# update_worksheet_data(WORKSHEET_TITLES[2], PRODUCT_RANGE[1], week_of_year - 1, deliveries)
-# print('Deliveries have been updated to the worksheet')
-
-# update_worksheet_data(WORKSHEET_TITLES[1], PRODUCT_RANGE[1], week_of_year - 1, stock_plan)
-# print('FSP have been updated to the worksheet')
