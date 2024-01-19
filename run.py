@@ -314,9 +314,12 @@ def input_sales_for_week(product_items):
             try:
                 amount = int(input(f"Enter the amount for '{item}' sold in week {week_number}: "))
                 week_sales.append([amount])
-                break
+                if amount >= 0:
+                    break
+                else:
+                    print("Sorry. The amount must be positive.")
             except ValueError as er:
-                print(f"You entered {er}. Please enter an integer.")
+                print(f"You entered {er}. Please enter a positive integer.")
 
     return week_sales
 
@@ -363,19 +366,6 @@ def choose_week():
 week_of_year = 1
 
 print(f'Welcome to the Forward Stock Plan Automation')
-
-# week_number = choose_week()
-# product_items, chosen_range = choose_product_range()
-# week_sales = input_sales_for_week(product_items)
-
-# print(f'Week number: {week_number}')
-# print(f'Product range: {chosen_range}')
-# print(f'Week sales: \n {week_sales}')
-
-# test_cutoff = Worksheets(WORKSHEET_TITLES[0]).cut_off_past_weeks(chosen_range, week_number)
-# print(test_cutoff)
-
-# update_worksheet_data(WORKSHEET_TITLES[0], chosen_range, week_number, week_sales)
 
 main_menu_options = ["[1] View Data", "[2] Update Data", "[3] Exit"]
 
