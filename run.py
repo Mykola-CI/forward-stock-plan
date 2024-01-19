@@ -2,6 +2,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 import math
 import statistics
+from simple_term_menu import TerminalMenu
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -375,3 +376,33 @@ print(f'Welcome to the Forward Stock Plan Automation')
 # print(test_cutoff)
 
 # update_worksheet_data(WORKSHEET_TITLES[0], chosen_range, week_number, week_sales)
+
+main_menu_options = ["[1] View Data", "[2] Update Data", "[3] Exit"]
+
+main_menu = TerminalMenu(main_menu_options, title="What to begin with? Please choose an option:")
+
+quit_program = False
+
+while quit_program == False:
+    option_index = main_menu.show()
+    option_choice = main_menu_options[option_index]
+
+    if(option_choice == "[3] Exit"):
+        quit_program = True
+        print("Thank you for using the Forward Stock Plan Automation. See ya!")
+    elif(option_choice == "[1] View Data"):
+        print("View Data")
+    elif(option_choice == "[2] Update Data"):
+        print("Update Data")
+        week_number = choose_week()
+        product_items, chosen_range = choose_product_range()
+        week_sales = input_sales_for_week(product_items)
+
+        print(f'Week number: {week_number}')
+        print(f'Sales of {chosen_range} at the week {week_number} :')
+        for i in range(len(product_items)):
+            print(f'{product_items[i]} : {week_sales[i][0]} cartons')
+
+        # update_worksheet_data(WORKSHEET_TITLES[0], chosen_range, week_number, week_sales)
+
+
