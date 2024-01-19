@@ -45,6 +45,9 @@ RITTER = [
     'Honey Salted Almonds'
 ]
 
+# PRODUCT RANGES BY BRANDS FOR FURTHER ACCESS TO ITEMS:
+PRODUCT_DICT = {'PLANTERS': PLANTERS, 'RITTER SPORT': RITTER}
+
 # MINIMUM ORDER QUANTITY IN RELATION TO SALES
 SAFETY_MARGIN = 1.2
 
@@ -82,7 +85,7 @@ class Worksheets:
     
     def get_week_index(self, week_number):
         self.get_values()
-        first_row = self.retrieved_values[0]
+        first_row = self.retrieved_values[WEEKS_ROW_NUMBER - 1]
         current_week_index = first_row.index(str(week_number))
         return current_week_index
     
@@ -95,8 +98,9 @@ class Worksheets:
         slice_product = [
         sublist for sublist in self.retrieved_values if product in sublist
     ]
-        future_values = [row[current_week_index + 1:] for row in slice_product]
+        future_values = [row[current_week_index:] for row in slice_product]
         future_numbers = [[int(x) if x != '' else 0 for x in sublist] for sublist in future_values]
+
         return future_numbers
 
 
@@ -110,7 +114,7 @@ def update_worksheet_data(worksheet, product, week_number, table_data):
 
     week_index = gspread_object.find(str(week_number), in_row=WEEKS_ROW_NUMBER)
 
-    start_column = week_index.col + 1
+    start_column = week_index.col
 
     if product == PRODUCT_RANGE[0]:
         start_row = PLANTERS_START_ROW
@@ -180,7 +184,7 @@ def update_sales_forecast(product, week_number):
         [mean]*WEEKS_TO_FORECAST for mean in retrospective_average_sales
     ]
 
-    update_worksheet_data(WORKSHEET_TITLES[0], product, week_number, sales_forecast)
+    update_worksheet_data(WORKSHEET_TITLES[0], product, week_number+1, sales_forecast)
 
     return None
 
@@ -212,16 +216,16 @@ def update_forward_stocks(product, week_number):
     print("Forward Stocks retrieving and processing data from the spreadsheet...")
 
     stocks = Worksheets(WORKSHEET_TITLES[1])
-    stocks_values = stocks.cut_off_past_weeks(product, week_number - 1)
+    stocks_values = stocks.cut_off_past_weeks(product, week_number)
     sales = Worksheets(WORKSHEET_TITLES[0])
-    sales_values = sales.cut_off_past_weeks(product, week_number - 1)
+    sales_values = sales.cut_off_past_weeks(product, week_number)
     deliveries = Worksheets(WORKSHEET_TITLES[2])
-    deliveries_values = deliveries.cut_off_past_weeks(product, week_number - 1)
+    deliveries_values = deliveries.cut_off_past_weeks(product, week_number)
 
     forward_stock_plan = calculate_forward_stocks(stocks_values, sales_values, deliveries_values)
 
     print(f"Updating forward stocks for {product} from week {week_number} onwards...")
-    update_worksheet_data(WORKSHEET_TITLES[1], product, week_number, forward_stock_plan)
+    update_worksheet_data(WORKSHEET_TITLES[1], product, week_number+1, forward_stock_plan)
 
     print("Forward stocks have been updated.")
 
@@ -232,13 +236,13 @@ def calculate_orders(product, week_number):
     print("Orders retrieving and processing data from the spreadsheet...")
 
     forward_stocks_object = Worksheets(WORKSHEET_TITLES[1])
-    forward_stocks_values = forward_stocks_object.cut_off_past_weeks(product, week_number-1)
+    forward_stocks_values = forward_stocks_object.cut_off_past_weeks(product, week_number)
     deliveries_object = Worksheets(WORKSHEET_TITLES[2])
-    deliveries_values = deliveries_object.cut_off_past_weeks(product, week_number-1)
+    deliveries_values = deliveries_object.cut_off_past_weeks(product, week_number)
     # orders = Worksheets(WORKSHEET_TITLES[3])
-    # orders_values = orders.cut_off_past_weeks(product, week_number-1)
+    # orders_values = orders.cut_off_past_weeks(product, week_number)
     sales_object = Worksheets(WORKSHEET_TITLES[0])
-    sales_values = sales_object.cut_off_past_weeks(product, week_number-1)
+    sales_values = sales_object.cut_off_past_weeks(product, week_number)
 
     print("Calculating orders...")
 
@@ -297,9 +301,51 @@ def calculate_orders(product, week_number):
     return next_order, deliveries, stocks
 
 
-def input_sales_for_week():
+def input_sales_for_week(product_items):
     """
     Prompts the user for sales data for a given week number and returns
+    """
+
+    week_sales = []
+
+    for item in product_items:
+        while True:
+            try:
+                amount = int(input(f"Enter the amount for '{item}' sold in week {week_number}: "))
+                week_sales.append([amount])
+                break
+            except ValueError as er:
+                print(f"You entered {er}. Please enter an integer.")
+
+    return week_sales
+
+
+def choose_product_range():
+    """
+    Prompts the user to choose a product range and returns the range
+    """
+    while True:
+        print(f"Please choose a product range by typing one of the numbers:")
+        for i in range(len(PRODUCT_RANGE)):
+            print(f"{i+1} for {PRODUCT_RANGE[i]}")
+        try:
+            choice = int(input("Enter your choice: "))
+            if 1 <= choice <= len(PRODUCT_RANGE):
+                break
+            else:
+                print(f"Sorry. Your choice must be between 1 and {len(PRODUCT_RANGE)}.")
+        except ValueError as err:
+            print(f"You entered {err}. Please enter a number between 1 and {len(PRODUCT_RANGE)}.")
+    
+    product_items = PRODUCT_DICT[PRODUCT_RANGE[choice-1]]
+    chosen_range = PRODUCT_RANGE[choice-1]
+
+    return product_items, chosen_range
+
+
+def choose_week():
+    """
+    Prompts the user to choose a week number and returns the number
     """
     while True:
         try:
@@ -310,27 +356,22 @@ def input_sales_for_week():
                 print("Sorry. Week number must be between 1 and 52.")
         except ValueError as err:
             print(f"You entered {err}. Please enter a number between 1 and 52.")
-
-    weekly_sales_data = {}
-
-    for item in PLANTERS:
-        while True:
-            try:
-                amount = int(input(f"Enter the amount for '{item}' sold in week {week_number}: "))
-                weekly_sales_data[item] = amount
-                break
-            except ValueError as er:
-                print(f"You entered {er}. Please enter an integer.")
-
-    return {week_number: weekly_sales_data}
-
+    
+    return week_number
 
 week_of_year = 1
 
 print(f'Welcome to the Forward Stock Plan Automation')
 
-sales_data = input_sales_for_week()
+# week_number = choose_week()
+# product_items, chosen_range = choose_product_range()
+# week_sales = input_sales_for_week(product_items)
 
-# Print the data object for verification
-print(sales_data)
+# print(f'Week number: {week_number}')
+# print(f'Product range: {chosen_range}')
+# print(f'Week sales: \n {week_sales}')
 
+# test_cutoff = Worksheets(WORKSHEET_TITLES[0]).cut_off_past_weeks(chosen_range, week_number)
+# print(test_cutoff)
+
+# update_worksheet_data(WORKSHEET_TITLES[0], chosen_range, week_number, week_sales)
