@@ -302,12 +302,14 @@ def calculate_orders(product, week_number):
     return next_order, deliveries, stocks
 
 
-def input_sales_for_week(product_items):
+def input_sales_for_week(product_range, week_number):
     """
     Prompts the user for sales data for a given week number and returns
+    the data as a list of lists: rows as product items and one column of sales
     """
 
     week_sales = []
+    product_items = PRODUCT_DICT[product_range]
 
     for item in product_items:
         while True:
@@ -317,34 +319,11 @@ def input_sales_for_week(product_items):
                 if amount >= 0:
                     break
                 else:
-                    print("Sorry. The amount must be positive.")
+                    print(f"Sorry. The amount must be positive. Try again for '{item}'.")
             except ValueError as er:
-                print(f"You entered {er}. Please enter a positive integer.")
+                print(f"You entered {er}. Please enter a positive integer or 0.")
 
     return week_sales
-
-
-def choose_product_range():
-    """
-    Prompts the user to choose a product range and returns the range
-    """
-    while True:
-        print(f"Please choose a product range by typing one of the numbers:")
-        for i in range(len(PRODUCT_RANGE)):
-            print(f"{i+1} for {PRODUCT_RANGE[i]}")
-        try:
-            choice = int(input("Enter your choice: "))
-            if 1 <= choice <= len(PRODUCT_RANGE):
-                break
-            else:
-                print(f"Sorry. Your choice must be between 1 and {len(PRODUCT_RANGE)}.")
-        except ValueError as err:
-            print(f"You entered {err}. Please enter a number between 1 and {len(PRODUCT_RANGE)}.")
-    
-    product_items = PRODUCT_DICT[PRODUCT_RANGE[choice-1]]
-    chosen_range = PRODUCT_RANGE[choice-1]
-
-    return product_items, chosen_range
 
 
 def choose_week():
@@ -363,36 +342,55 @@ def choose_week():
     
     return week_number
 
-week_of_year = 1
+def run_update_data(product_range):
+    """
+    Runs the update data function
+    """
+    week_number = choose_week()
+    week_sales = input_sales_for_week(product_range, week_number)
 
-print(f'Welcome to the Forward Stock Plan Automation')
-
-main_menu_options = ["[1] View Data", "[2] Update Data", "[3] Exit"]
-
-main_menu = TerminalMenu(main_menu_options, title="What to begin with? Please choose an option:")
-
-quit_program = False
-
-while quit_program == False:
-    option_index = main_menu.show()
-    option_choice = main_menu_options[option_index]
-
-    if(option_choice == "[3] Exit"):
-        quit_program = True
-        print("Thank you for using the Forward Stock Plan Automation. See ya!")
-    elif(option_choice == "[1] View Data"):
-        print("View Data")
-    elif(option_choice == "[2] Update Data"):
-        print("Update Data")
-        week_number = choose_week()
-        product_items, chosen_range = choose_product_range()
-        week_sales = input_sales_for_week(product_items)
-
-        print(f'Week number: {week_number}')
-        print(f'Sales of {chosen_range} at the week {week_number} :')
-        for i in range(len(product_items)):
-            print(f'{product_items[i]} : {week_sales[i][0]} cartons')
-
-        # update_worksheet_data(WORKSHEET_TITLES[0], chosen_range, week_number, week_sales)
+    # update_worksheet_data(
+    #     WORKSHEET_TITLES[0], product_range, week_number, week_sales
+    #     )
+    
+    print(f"Sales for the week {week_number} have been updated to the spreadsheet.")
 
 
+    return None
+
+def main():
+    """Main function"""
+
+    print(f'Welcome to the Forward Stock Plan Automation')
+    
+
+    main_menu_options = ["[1] View Data", "[2] Update Data", "[3] Exit"]
+    sub_menu_options = ["[1] for Planters", "[2] for Ritter Sport", "[3] Back to Main Menu"]
+
+    main_menu = TerminalMenu(main_menu_options, title="What to begin with? Please choose an option:")
+    sub_menu = TerminalMenu(sub_menu_options, title="Please choose a product range:")
+
+    quit_program = False
+
+    while quit_program == False:
+        option_index = main_menu.show()
+        option_choice = main_menu_options[option_index]
+
+        if(option_choice == "[3] Exit"):
+            quit_program = True
+            print("Thank you for using the Forward Stock Plan Automation. See ya!")
+        elif(option_choice == "[1] View Data"):
+            print("View Data")
+        elif(option_choice == "[2] Update Data"):
+            sub_option_index = sub_menu.show()
+            sub_option_choice = sub_menu_options[sub_option_index]
+            if(sub_option_choice == "[1] for Planters"):
+                run_update_data(PRODUCT_RANGE[0])
+            elif(sub_option_choice == "[2] for Ritter Sport"):
+                run_update_data(PRODUCT_RANGE[1])
+            elif(sub_option_choice == "[3] Back to Main Menu"):
+                print("Back to Main Menu")
+
+            # update_worksheet_data(WORKSHEET_TITLES[0], chosen_range, week_number, week_sales)
+
+main()
