@@ -314,7 +314,7 @@ def input_sales_for_week(product_range, week_number):
     for item in product_items:
         while True:
             try:
-                amount = int(input(f"Enter the amount for '{item}' sold in week {week_number}: "))
+                amount = int(input(f"Enter the amount for '{item}' sold in week {week_number}:\n "))
                 week_sales.append([amount])
                 if amount >= 0:
                     break
@@ -332,7 +332,7 @@ def choose_week():
     """
     while True:
         try:
-            week_number = int(input("Enter the week number: "))
+            week_number = int(input("Enter the week number: \n"))
             if 1 <= week_number <= 52:
                 break
             else:
