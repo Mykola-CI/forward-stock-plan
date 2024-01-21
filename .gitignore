@@ -9,3 +9,4 @@ node_modules/
 fsp_p3/
 pyvenv.cfg
 creds.json
+color_text.py

@@ -3,6 +3,8 @@ from google.oauth2.service_account import Credentials
 import math
 import statistics
 from simple_term_menu import TerminalMenu
+from tabulate import tabulate
+from colorama import Fore, Back, Style
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -75,25 +77,33 @@ WEEKS_ROW_NUMBER = 1
 
 class Worksheets:
     """
-    Class for retrieving data from the worksheets in the spreadsheet
+    Class for retrieving data from the worksheets of the project Google Sheet
+    Major intermediary between the project logic and the Google Sheet API
     """
+
     def __init__(self, worksheet_to_get):
         self.worksheet_to_get = worksheet_to_get
 
+    # gets all values from the worksheet in the form of list of lists
     def get_values(self):
-        self.retrieved_values = SHEET.worksheet(self.worksheet_to_get).get_all_values()
+        self.retrieved_values = SHEET.worksheet(
+            self.worksheet_to_get).get_all_values()
         return self.retrieved_values
     
+    # gets the index of the week number in the retrieved list of lists
     def get_week_index(self, week_number):
         self.get_values()
         first_row = self.retrieved_values[WEEKS_ROW_NUMBER - 1]
         current_week_index = first_row.index(str(week_number))
         return current_week_index
     
+    # gets the worksheet object from the Google Sheet API
     def get_gspread_worksheet(self):
         return SHEET.worksheet(self.worksheet_to_get)
     
-    def cut_off_past_weeks(self, product, week_number):
+    # slices the columns of the worksheet from the given week number
+    # the goal is to optimize the computation time when iterating
+    def slice_past_weeks(self, product, week_number):
         self.get_values()
         current_week_index = self.get_week_index(week_number)
         slice_product = [
@@ -105,10 +115,22 @@ class Worksheets:
         return future_numbers
 
 
+def transform_cell_coordinates(row, col):
+    """
+    Utility function. Converts given row and column numbers (in so called R1C1 
+    notation) to the alternative notation with columns represented by letters
+    (so called A1B1 notation). A1B1 notation is required for some methods 
+    in the gspread API.
+    """
+    cell = gspread.utils.rowcol_to_a1(row, col)
+
+    return cell
+
+
 def update_worksheet_data(worksheet, product, week_number, table_data):
     """
-    Utility function. Updates given worksheet for a given Product Range with 
-    data matrix 'table_data' passed in the form of list of lists. 
+    Utility function. Transfers the passed list of lists to the required 
+    worksheet for a given Product Range and from given Week Number onwards. 
     """
     worksheet_instance = Worksheets(worksheet)
     gspread_object = worksheet_instance.get_gspread_worksheet()
@@ -124,11 +146,11 @@ def update_worksheet_data(worksheet, product, week_number, table_data):
     else:
         print('Product range input error or the Product range does not exist')
 
-    start_cell_position = r1c1_to_a1(start_row, start_column)
+    start_cell_position = transform_cell_coordinates(start_row, start_column)
 
     end_row = start_row + len(product)
     end_column = start_column + len(table_data[0])
-    end_cell_position = r1c1_to_a1(end_row, end_column)
+    end_cell_position = transform_cell_coordinates(end_row, end_column)
 
     cells_range = start_cell_position + ':' + end_cell_position
 
@@ -136,18 +158,11 @@ def update_worksheet_data(worksheet, product, week_number, table_data):
 
     return None
 
-def r1c1_to_a1(row, col):
-    """
-    Utility function. Converts given row and column numbers to A1 notation
-    """
-    cell = gspread.utils.rowcol_to_a1(row, col)
-
-    return cell
-
 
 def calculate_average_sales(product, sales_values, current_week_index):
     """
-    Calculates average sales for a given product range and week number
+    Calculates average sales for a given product range and week number as 
+    a mean of sales for the last 5 weeks including the current week
     """
     product_range_sale = [
         sublist for sublist in sales_values if product in sublist
@@ -195,9 +210,6 @@ def calculate_forward_stocks(stocks_values, sales_values, deliveries_values):
     Calculate and compose forward stock plan based on sales, deliveries and 
     stocks data
     """
-
-    print("Calculating forward stocks...")
-
     forward_stocks = []
     for i in range(len(stocks_values)):
         forward_stocks_row = [stocks_values[i][0] - sum(sales_values[i][:j+1]) 
@@ -214,38 +226,35 @@ def calculate_forward_stocks(stocks_values, sales_values, deliveries_values):
 
 def update_forward_stocks(product, week_number):
 
-    print("Forward Stocks retrieving and processing data from the spreadsheet...")
-
     stocks = Worksheets(WORKSHEET_TITLES[1])
-    stocks_values = stocks.cut_off_past_weeks(product, week_number)
+    stocks_values = stocks.slice_past_weeks(product, week_number)
     sales = Worksheets(WORKSHEET_TITLES[0])
-    sales_values = sales.cut_off_past_weeks(product, week_number)
+    sales_values = sales.slice_past_weeks(product, week_number)
     deliveries = Worksheets(WORKSHEET_TITLES[2])
-    deliveries_values = deliveries.cut_off_past_weeks(product, week_number)
+    deliveries_values = deliveries.slice_past_weeks(product, week_number)
 
     forward_stock_plan = calculate_forward_stocks(stocks_values, sales_values, deliveries_values)
 
-    print(f"Updating forward stocks for {product} from week {week_number} onwards...")
     update_worksheet_data(WORKSHEET_TITLES[1], product, week_number+1, forward_stock_plan)
-
-    print("Forward stocks have been updated.")
 
     return None
 
-def calculate_orders(product, week_number):
 
-    print("Orders retrieving and processing data from the spreadsheet...")
+def calculate_orders(product, week_number):
+    """
+    Calculates orders recommendation for a given product range starting form
+    a chosen week to the end of year. Updates deliveries plan and forward 
+    stock plan. Returns a lists of lists for orders, deliveries and stocks
+    """
 
     forward_stocks_object = Worksheets(WORKSHEET_TITLES[1])
-    forward_stocks_values = forward_stocks_object.cut_off_past_weeks(product, week_number)
+    forward_stocks_values = forward_stocks_object.slice_past_weeks(product, week_number)
     deliveries_object = Worksheets(WORKSHEET_TITLES[2])
-    deliveries_values = deliveries_object.cut_off_past_weeks(product, week_number)
+    deliveries_values = deliveries_object.slice_past_weeks(product, week_number)
     # orders = Worksheets(WORKSHEET_TITLES[3])
-    # orders_values = orders.cut_off_past_weeks(product, week_number)
+    # orders_values = orders.slice_past_weeks(product, week_number)
     sales_object = Worksheets(WORKSHEET_TITLES[0])
-    sales_values = sales_object.cut_off_past_weeks(product, week_number)
-
-    print("Calculating orders...")
+    sales_values = sales_object.slice_past_weeks(product, week_number)
 
     if product == PRODUCT_RANGE[0]:
         lead_time = PLANTERS_LT
@@ -342,33 +351,50 @@ def choose_week():
     
     return week_number
 
+
 def run_update_data(product_range):
     """
-    Runs the update data function
+    Runs sequences and launches functions for updating data and storing them
+    into the spreadsheet
     """
     week_number = choose_week()
     week_sales = input_sales_for_week(product_range, week_number)
 
-    # update_worksheet_data(
-    #     WORKSHEET_TITLES[0], product_range, week_number, week_sales
-    #     )
+    update_worksheet_data(
+        WORKSHEET_TITLES[0], product_range, week_number, week_sales
+        )
     
-    print(f"Sales for the week {week_number} have been updated to the spreadsheet.")
+    print(
+        f"Sales for the week {week_number} have been stored to the spreadsheet."
+        )
 
+    print("Updating sales forecast...")
+    update_sales_forecast(product_range, week_number)
+    print("Sales forecast has been updated.")
+
+    print("Updating forward stocks...")
+    update_forward_stocks(product_range, week_number)
+    print("Forward stocks have been updated.")
 
     return None
+
 
 def main():
     """Main function"""
 
-    print(f'Welcome to the Forward Stock Plan Automation')
+    print(f"""
+        Welcome to the Forward Stock Plan Automation
+        --------------------------------------------""")
     
+    main_menu_options = ["[1] View Data", "[2] Update Weekly Sales", "[3] Update Orders", "[4] Exit"]
+    sub_options_update = ["[1] for Planters", "[2] for Ritter Sport", "[3] Back to Main Menu"]
+    sub_options_view = ["[1] Planters", "[2] Ritter Sport", "[3] Back to Main Menu"]
+    sub_sub_options_view = ["[1] Weekly Sales", "[2] Weekly Stocks", "[3] Deliveries", "[4] Orders", "[5] Back to Product Range"]
 
-    main_menu_options = ["[1] View Data", "[2] Update Data", "[3] Exit"]
-    sub_menu_options = ["[1] for Planters", "[2] for Ritter Sport", "[3] Back to Main Menu"]
-
-    main_menu = TerminalMenu(main_menu_options, title="What to begin with? Please choose an option:")
-    sub_menu = TerminalMenu(sub_menu_options, title="Please choose a product range:")
+    main_menu = TerminalMenu(main_menu_options, title="\n Please choose an option:\n ")
+    sub_update_menu = TerminalMenu(sub_options_update, title="Please choose a product range:")
+    sub_view_menu = TerminalMenu(sub_options_view, title="Please choose a product range:")
+    sub_sub_view_menu = TerminalMenu(sub_sub_options_view, title="Please choose a worksheet to view:")
 
     quit_program = False
 
@@ -376,21 +402,71 @@ def main():
         option_index = main_menu.show()
         option_choice = main_menu_options[option_index]
 
-        if(option_choice == "[3] Exit"):
+        if(option_choice == "[4] Exit"):
             quit_program = True
-            print("Thank you for using the Forward Stock Plan Automation. See ya!")
+            print("\n Thank you for using the Forward Stock Plan Automation. See ya! \n")
         elif(option_choice == "[1] View Data"):
-            print("View Data")
-        elif(option_choice == "[2] Update Data"):
-            sub_option_index = sub_menu.show()
-            sub_option_choice = sub_menu_options[sub_option_index]
-            if(sub_option_choice == "[1] for Planters"):
+            sub_view_menu_index = sub_view_menu.show()
+            sub_view_choice = sub_options_view[sub_view_menu_index]
+            if(sub_view_choice == "[1] Planters"):
+                sub_sub_view_menu_index = sub_sub_view_menu.show()
+                sub_sub_view_choice = sub_sub_options_view[sub_sub_view_menu_index]
+                if(sub_sub_view_choice == "[1] Weekly Sales"):
+                    print(f"Weekly Sales for Planters")
+                elif(sub_sub_view_choice == "[2] Weekly Stocks"):
+                    print("Weekly Stocks for Planters")
+                elif(sub_sub_view_choice == "[3] Deliveries"):
+                    print("Deliveries for Planters")
+                elif(sub_sub_view_choice == "[4] Orders"):
+                    print("Orders for Planters")
+                elif(sub_sub_view_choice == "[5] Back to Product Range"):
+                    pass
+            elif(sub_view_choice == "[2] Ritter Sport"):
+                sub_sub_view_menu_index = sub_sub_view_menu.show()
+                sub_sub_view_choice = sub_sub_options_view[sub_sub_view_menu_index]
+                if(sub_sub_view_choice == "[1] Weekly Sales"):
+                    print("Weekly Sales for Ritter Sport")
+                elif(sub_sub_view_choice == "[2] Weekly Stocks"):
+                    print("Weekly Stocks for Ritter Sport")
+                elif(sub_sub_view_choice == "[3] Deliveries"):
+                    print("Deliveries for Ritter Sport")
+                elif(sub_sub_view_choice == "[4] Orders"):
+                    print("Orders for Ritter Sport")
+                elif(sub_sub_view_choice == "[5] Back to Product Range"):
+                    pass
+        elif(option_choice == "[2] Update Weekly Sales"):
+            sub_update_index = sub_update_menu.show()
+            sub_update_choice = sub_options_update[sub_update_index]
+            if(sub_update_choice == "[1] for Planters"):
                 run_update_data(PRODUCT_RANGE[0])
-            elif(sub_option_choice == "[2] for Ritter Sport"):
+            elif(sub_update_choice == "[2] for Ritter Sport"):
                 run_update_data(PRODUCT_RANGE[1])
-            elif(sub_option_choice == "[3] Back to Main Menu"):
-                print("Back to Main Menu")
+            elif(sub_update_choice == "[3] Back to Main Menu"):
+                pass
+        elif(option_choice == "[3] Update Orders"):
+            sub_update_index = sub_update_menu.show()
+            sub_update_choice = sub_options_update[sub_update_index]
+            if(sub_update_choice == "[1] for Planters"):
+                week_number = choose_week()
+                print("\n Calculating orders recommendation for Planters...")
+                next_order, deliveries, stocks = calculate_orders(PRODUCT_RANGE[0], week_number)
+                print("\n Storing data to the spreadsheet...")
+                update_worksheet_data(WORKSHEET_TITLES[3], PRODUCT_RANGE[0], week_number, next_order)
+                update_worksheet_data(WORKSHEET_TITLES[2], PRODUCT_RANGE[0], week_number, deliveries)
+                update_worksheet_data(WORKSHEET_TITLES[1], PRODUCT_RANGE[0], week_number, stocks)
+                print("\n Orders, deliveries and stocks for Planters have been updated.")
 
-            # update_worksheet_data(WORKSHEET_TITLES[0], chosen_range, week_number, week_sales)
+            elif(sub_update_choice == "[2] for Ritter Sport"):
+                week_number = choose_week()
+                print("\n Calculating orders recommendation for Ritter Sport...")
+                next_order, deliveries, stocks = calculate_orders(PRODUCT_RANGE[1], week_number)
+                print("\n Storing data to the spreadsheet...")
+                update_worksheet_data(WORKSHEET_TITLES[3], PRODUCT_RANGE[1], week_number, next_order)
+                update_worksheet_data(WORKSHEET_TITLES[2], PRODUCT_RANGE[1], week_number, deliveries)
+                update_worksheet_data(WORKSHEET_TITLES[1], PRODUCT_RANGE[1], week_number, stocks)
+                print("\n Orders, deliveries and stocks for Ritter Sport have been updated.")
+            elif(sub_update_choice == "[3] Back to Main Menu"):
+                pass
+
 
 main()
