@@ -435,13 +435,13 @@ def run_update_data(product_range):
         "to the spreadsheet."
         )
 
-    print("Updating sales forecast...")
+    print("\n Updating sales forecast...")
     update_sales_forecast(product_range, week_number)
-    print("Sales forecast has been updated.")
+    print("\n Sales forecast has been updated.")
 
-    print("Updating forward stocks...")
+    print("\n Updating forward stocks...")
     update_forward_stocks(product_range, week_number)
-    print("Forward stocks have been updated.")
+    print("\n Forward stocks have been updated.")
 
     return None
 
@@ -476,16 +476,18 @@ def main():
 
     print(
         f"""
-        Welcome to the Forward Stock Plan Automation
+        WELCOME TO THE FORWARD STOCK PLAN AUTOMATION
         --------------------------------------------
+        if you are new user have a look at the Glossary of Terms
         """
     )
     
     main_menu_options = [
         "[1] View Data", 
         "[2] Update Weekly Sales", 
-        "[3] Update Orders", 
-        "[4] Exit"
+        "[3] Update Orders",
+        "[4] Glossary of Terms" 
+        "[5] Exit"
     ]
     sub_options_update = [
         "[1] for Planters", 
@@ -524,11 +526,11 @@ def main():
         option_index = main_menu.show()
         option_choice = main_menu_options[option_index]
 
-        if(option_choice == "[4] Exit"):
+        if(option_choice == "[5] Exit"):
 
             quit_program = True
             print(
-                "\n Thank you for using"
+                "\n Thank you for using "
                 "the Forward Stock Plan Automation. See ya! \n")
             
         elif(option_choice == "[1] View Data"):
@@ -635,7 +637,7 @@ def main():
             if(sub_update_choice == "[1] for Planters"):
                 week_number = choose_week()
                 print(
-                    "\n Calculating orders recommendation"
+                    "\n Calculating orders recommendation "
                     "for Planters...")
                 next_order, deliveries, stocks = calculate_orders(
                     PRODUCT_RANGE[0], week_number
@@ -661,14 +663,14 @@ def main():
                     stocks
                 )
                 print(
-                    "\n Orders, deliveries and stocks for Planters"
+                    "\n Orders, deliveries and stocks for Planters "
                     "have been updated."
                 )
 
             elif(sub_update_choice == "[2] for Ritter Sport"):
                 week_number = choose_week()
                 print(
-                    "\n Calculating orders recommendation"
+                    "\n Calculating orders recommendation "
                     "for Ritter Sport...")
                 next_order, deliveries, stocks = calculate_orders(
                     PRODUCT_RANGE[1], week_number
@@ -698,6 +700,67 @@ def main():
                 
             elif(sub_update_choice == "[3] Back to Main Menu"):
                 pass
+
+        elif(option_choice == "[4] Glossary of Terms"):
+            print(
+                f"""
+                --------------------------------------------
+                GLOSSARY OF TERMS
+                --------------------------------------------
+                OPTIONS:
+                --------------------------------------------
+                [1] View Data - view sales, stocks, orders, deliveries
+                for a given product range and week number. Data is 
+                presented in a table format for all weeks from the
+                given week number to the end of year
+
+                [2] Update Weekly Sales - type in sales for a given
+                product range and week number. Sales are stored in
+                the Weekly Sales worksheet and used for updating
+                sales forecast and forward stock plan
+
+                [3] Update Orders - calculates orders recommendation 
+                based on sales, stocks and deliveries data for a given 
+                week number and product range. Updates Orders, 
+                deliveries, and stocks worksheets
+
+                --------------------------------------------
+                
+                Product Ranges - product items under one umbrella brand.
+                Currently there are two product ranges: Planters and
+                Ritter Sport
+
+                Week Number - the number of the week in the year
+                
+                Weekly Sales - the number of units sold in a given week
+                or with regards to future weeks - sales forecast
+
+                Weekly Stocks - the number of units in stock at 
+                (important!) the beginning of the week
+
+                Orders - the number of units to be ordered in 
+                a particular week (recommendation)
+
+                Deliveries - the number of units delivered in 
+                the past week or with regards to future weeks - 
+                to be delivered at the estimated week of delivery
+
+                Lead Time - the number of weeks between placing 
+                the order and receiving the delivery
+
+                Forward Stock Plan - the number of units in stock 
+                estimated for future weeks at the current rate of sales
+                and expected deliveries
+
+                Safety Margin - the percentage of additional units to 
+                order on top of the average sales to avoid stockouts
+
+                Minimum Stock Level - the multiple of average sales
+                to keep in stock to avoid stockouts
+                """
+            )
+            input("\n Press Enter to continue...\n")
+            pass
 
 
 main()
