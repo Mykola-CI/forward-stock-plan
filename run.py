@@ -485,8 +485,8 @@ def main():
     main_menu_options = [
         "[1] View Data", 
         "[2] Update Weekly Sales", 
-        "[3] Update Orders",
-        "[4] Glossary of Terms" 
+        "[3] Update Orders", 
+        "[4] Glossary of Terms",  
         "[5] Exit"
     ]
     sub_options_update = [
@@ -702,6 +702,7 @@ def main():
                 pass
 
         elif(option_choice == "[4] Glossary of Terms"):
+
             print(
                 f"""
                 --------------------------------------------
@@ -712,16 +713,20 @@ def main():
                 [1] View Data - view sales, stocks, orders, deliveries
                 for a given product range and week number. Data is 
                 presented in a table format for all weeks from the
-                given week number to the end of year
+                chosen week number to the end of year
 
                 [2] Update Weekly Sales - type in sales for a given
-                product range and week number. Sales are stored in
-                the Weekly Sales worksheet and used for updating
-                sales forecast and forward stock plan
+                product range and week. The data can be updated 
+                for any chosen week to record either actual sales or 
+                update forecasts. Once all items for the product range 
+                have been typed in, the program calculates and updates 
+                sales forecast and stocks.    
+                Both sales Sales and Stocks are then stored in
+                their respective worksheets
 
-                [3] Update Orders - calculates orders recommendation 
-                based on sales, stocks and deliveries data for a given 
-                week number and product range. Updates Orders, 
+                [3] Update Orders - calculate orders recommendation 
+                based on new sales, stocks and deliveries data for a 
+                given week number and product range. Updates Orders, 
                 deliveries, and stocks worksheets
 
                 --------------------------------------------
@@ -749,8 +754,8 @@ def main():
                 the order and receiving the delivery
 
                 Forward Stock Plan - the number of units in stock 
-                estimated for future weeks at the current rate of sales
-                and expected deliveries
+                estimated for all future weeks at the current rate of 
+                sales and expected deliveries
 
                 Safety Margin - the percentage of additional units to 
                 order on top of the average sales to avoid stockouts
@@ -763,4 +768,5 @@ def main():
             pass
 
 
-main()
+if (__name__ == "__main__"): 
+    main()
