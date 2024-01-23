@@ -9,19 +9,19 @@
     presented in a table format for all weeks from the
     chosen week number to the end of year
 
-    [2] Update Weekly Sales - type in sales for a given
+    [2] Update Weekly Sales - type in sales for the chosen
     product range and week. The data can be updated 
     for any chosen week to record either actual sales or 
     update forecasts. Once all items for the product range 
     have been typed in, the program calculates and updates 
     sales forecast and stocks.    
-    Both sales Sales and Stocks are then stored in
+    Both Sales and Stocks are then stored in
     their respective worksheets
 
     [3] Update Orders - calculate orders recommendation 
     based on new sales, stocks and deliveries data for a 
     given week number and product range. Updates Orders, 
-    deliveries, and stocks worksheets
+    Deliveries, and Stocks worksheets
 
     --------------------------------------------
     
@@ -31,21 +31,24 @@
 
     Week Number - the number of the week in the year
     
-    Weekly Sales - the number of units sold in a given week
+    Weekly Sales - the number of units sold in the chosen week
     or with regards to future weeks - sales forecast
 
     Weekly Stocks - the number of units in stock at 
     (important!) the beginning of the week
 
     Orders - the number of units to be ordered in 
-    a particular week (recommendation)
+    a particular week (recommendation) taking into
+    consideration the lead time of particular Product Range
 
     Deliveries - the number of units delivered in 
     the past week or with regards to future weeks - 
     to be delivered at the estimated week of delivery
 
     Lead Time - the number of weeks between placing 
-    the order and receiving the delivery
+    the order and receiving the delivery. The delivered
+    goods become available for sale only from the next week
+    after estimated arrival (Lead Time + 1)
 
     Forward Stock Plan - the number of units in stock 
     estimated for all future weeks at the current rate of 
