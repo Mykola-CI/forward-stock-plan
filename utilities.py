@@ -21,7 +21,7 @@ SHEET = GSPREAD_CLIENT.open('forward_stock_plan')
 
 class Worksheets:
     """
-    The Class to serve as a Major intermediary between the project logic 
+    The Class to serve as a Major intermediary between the project logic
     and the Google Sheet API. Retrieves objects and data from the API.
     Truncates the data and returns it to the project logic.
     """
@@ -34,18 +34,18 @@ class Worksheets:
         self.retrieved_values = SHEET.worksheet(
             self.worksheet_to_get).get_all_values()
         return self.retrieved_values
-    
+
     # gets the index of the week number in the retrieved list of lists
     def get_week_index(self, week_number):
         self.get_values()
         first_row = self.retrieved_values[WEEKS_ROW_NUMBER - 1]
         current_week_index = first_row.index(str(week_number))
         return current_week_index
-    
+
     # gets the worksheet object from the Google Sheet API
     def get_gspread_worksheet(self):
         return SHEET.worksheet(self.worksheet_to_get)
-    
+
     # Slice the columns of the worksheet from the given week number.
     # The goal is to optimize the computation time when iterating
     def slice_past_weeks(self, product, week_number):
@@ -66,9 +66,9 @@ class Worksheets:
 
 def transform_cell_coordinates(row, col):
     """
-    Utility function. Converts given row and column numbers 
-    (in so called R1C1 notation) to the alternative notation with 
-    columns represented by letters (so called A1B1 notation). 
+    Utility function. Converts given row and column numbers
+    (in so called R1C1 notation) to the alternative notation with
+    columns represented by letters (so called A1B1 notation).
     A1B1 notation is required for some methods in the gspread module.
     """
     cell = gspread.utils.rowcol_to_a1(row, col)
@@ -78,9 +78,9 @@ def transform_cell_coordinates(row, col):
 
 def update_worksheet_data(worksheet, product, week_number, table_data):
     """
-    Utility function. Transfers the passed list of lists to 
-    the required worksheet for a given Product Range and 
-    from given Week Number onwards. 
+    Utility function. Transfers the passed list of lists to
+    the required worksheet for a given Product Range and
+    from given Week Number onwards.
     """
     worksheet_instance = Worksheets(worksheet)
     gspread_object = worksheet_instance.get_gspread_worksheet()
@@ -95,7 +95,7 @@ def update_worksheet_data(worksheet, product, week_number, table_data):
         start_row = len(PLANTERS) + PLANTERS_START_ROW + 1
     else:
         print(
-            "Product range input error or the Product range" 
+            "Product range input error or the Product range"
             "does not exist")
 
     start_cell_position = transform_cell_coordinates(
@@ -115,7 +115,7 @@ def update_worksheet_data(worksheet, product, week_number, table_data):
 
 def print_table(worksheet, product_range, week_number):
     """
-    Prints the table of the chosen worksheet (sales, stocks, orders, 
+    Prints the table of the chosen worksheet (sales, stocks, orders,
     or deliveries for a given product range and week number
     """
     worksheet_instance = Worksheets(worksheet)
@@ -130,14 +130,14 @@ def print_table(worksheet, product_range, week_number):
     product_items = PRODUCT_DICT[product_range]
     row_ids = [week_number + i for i in range(len(worksheet_values[0]))]
     print(
-        f""" 
+        f"""
         {worksheet} for {product_range} as from the week {week_number}:
         """
     )
     print(
         tabulate(
-            turn_table_vertical, headers=product_items, showindex=row_ids, 
-            tablefmt='fancy_grid', maxheadercolwidths=8, 
+            turn_table_vertical, headers=product_items, showindex=row_ids,
+            tablefmt='fancy_grid', maxheadercolwidths=8,
             colalign=("center",)*(len(product_items)+1)
         )
     )
@@ -152,21 +152,21 @@ def print_glossary():
     with open('glossary.txt', 'r') as file:
         glossary_text = file.read()
         print(glossary_text)
-    
+
     return None
 
 
 def define_lead_time(product):
     """
     Defines the lead time for the given product range
-    """    
+    """
     if product == PRODUCT_RANGE[0]:
-            lead_time = PLANTERS_LT
+        lead_time = PLANTERS_LT
     elif product == PRODUCT_RANGE[1]:
         lead_time = RITTER_LT
     else:
         print(
             'Product range input error or'
             'the Product range does not exist')
-        
+
     return lead_time

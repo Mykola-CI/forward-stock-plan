@@ -9,7 +9,7 @@ from utilities import *
 
 def calculate_average_sales(product, sales_values, current_week_index):
     """
-    Calculates average sales for a given product range and week number 
+    Calculates average sales for a given product range and week number
     as a mean of sales for the last 5 weeks including the current week
     """
     # Slice the sales list of lists for a given product range
@@ -24,7 +24,7 @@ def calculate_average_sales(product, sales_values, current_week_index):
         for sublist in product_range_sale
     ]
 
-    # Convert the strings to integers by mapping `int` function 
+    # Convert the strings to integers by mapping `int` function
     # to items in the sub-lists
     retrospective_sales = [
         list(map(int, sublist)) for sublist in retrospective_sale_strings
@@ -40,7 +40,7 @@ def calculate_average_sales(product, sales_values, current_week_index):
 
 def update_sales_forecast(product, week_number):
     """
-    Updates the sales spreadsheet for a given product range 
+    Updates the sales spreadsheet for a given product range
     and week number
     """
     sales = Worksheets(WORKSHEET_TITLES[0])
@@ -52,7 +52,7 @@ def update_sales_forecast(product, week_number):
         product, sales_values, current_week_index
     )
 
-    # Creates a list of lists extrapolating the average sales for 
+    # Creates a list of lists extrapolating the average sales for
     # for the set number of weeks or the remaining weeks of the year
     if week_number < 52 - WEEKS_TO_FORECAST:
         sales_forecast = [
@@ -73,19 +73,19 @@ def update_sales_forecast(product, week_number):
 
 def calculate_forward_stocks(stocks_values, sales_values, deliveries_values):
     """
-    Calculate and compose forward stock plan based on sales forecast, 
+    Calculate and compose forward stock plan based on sales forecast,
     planned deliveries and the beginning stock
     """
     for i in range(len(stocks_values)):
         for k in range(1, len(stocks_values[i])):
-                if stocks_values[i][k-1] <= sales_values[i][k - 1]:
-                    stocks_values[i][k] = deliveries_values[i][k - 1]
-                else:
-                    stocks_values[i][k] = (
-                        stocks_values[i][k - 1]
-                        + deliveries_values[i][k - 1]
-                        - sales_values[i][k - 1]
-                    )
+            if stocks_values[i][k-1] <= sales_values[i][k - 1]:
+                stocks_values[i][k] = deliveries_values[i][k - 1]
+            else:
+                stocks_values[i][k] = (
+                    stocks_values[i][k - 1]
+                    + deliveries_values[i][k - 1]
+                    - sales_values[i][k - 1]
+                )
 
     return stocks_values
 
@@ -113,9 +113,9 @@ def update_forward_stocks(product, week_number):
 
 def calculate_orders(product, week_number):
     """
-    Calculates orders recommendation for a given product range 
-    starting from a chosen week to the end of year. 
-    Updates deliveries plan and forward stock plan. 
+    Calculates orders recommendation for a given product range
+    starting from a chosen week to the end of year.
+    Updates deliveries plan and forward stock plan.
     Returns lists of lists for orders, deliveries and stocks
     """
 
@@ -156,16 +156,16 @@ def calculate_orders(product, week_number):
             ave_sale_lead_time = math.ceil(
                 statistics.mean(sales_values[i][j:j+lead_time+2])
             )
-            
+
             if stocks_row[j] < ave_sale_lead_time * (
                 lead_time+1
-                ) * MIN_STOCK_LEVEL:
-                
-                if j + lead_time + 1 < len(sales_values[i]): 
+            ) * MIN_STOCK_LEVEL:
+
+                if j + lead_time + 1 < len(sales_values[i]):
                     orders_row[j] = max(
                         math.ceil(
-                        ave_sale_lead_time * SAFETY_MARGIN * (lead_time+1)
-                        ) - stocks_row[j + lead_time + 1], 
+                            ave_sale_lead_time * SAFETY_MARGIN * (lead_time+1)
+                        ) - stocks_row[j + lead_time + 1],
                         0
                     )
                     deliveries_row[j+lead_time] = orders_row[j]
@@ -184,26 +184,27 @@ def calculate_orders(product, week_number):
                 elif j + lead_time + 1 == len(sales_values[i]):
                     orders_row[j] = max(
                         math.ceil(
-                        ave_sale_lead_time * (lead_time+1) * SAFETY_MARGIN
-                    ) - (
-                        stocks_row[j + lead_time]
-                        - sales_values[i][j+lead_time]
-                        + deliveries_row[j+lead_time]
-                    ), 
-                    0
-                )
+                            ave_sale_lead_time * (lead_time+1) * SAFETY_MARGIN
+                        ) - (
+                            stocks_row[j + lead_time]
+                            - sales_values[i][j+lead_time]
+                            + deliveries_row[j+lead_time]
+                        ),
+                        0
+                    )
                     deliveries_row[j+lead_time] = orders_row[j]
                 else:
                     orders_row[j] = max(
                         math.ceil(
-                        ave_sale_lead_time * (lead_time+1) * SAFETY_MARGIN
-                    ) - (
-                    stocks_row[j] - ave_sale_lead_time*(lead_time+1) 
-                    + sum(orders_row[j-lead_time:j+1])
-                    ), 
-                    0
-                )
-                    
+                            ave_sale_lead_time * (lead_time+1) * SAFETY_MARGIN
+                        ) - (
+                                stocks_row[j]
+                                - ave_sale_lead_time*(lead_time+1)
+                                + sum(orders_row[j-lead_time:j+1])
+                        ),
+                        0
+                    )
+
             else:
                 orders_row[j] = 0
 
@@ -216,8 +217,8 @@ def calculate_orders(product, week_number):
 
 def input_sales_for_week(product_range, week_number):
     """
-    Prompts the user for sales data for a given week number 
-    and returns the data as a list of lists: rows as product items 
+    Prompts the user for sales data for a given week number
+    and returns the data as a list of lists: rows as product items
     and one column of sales
     """
 
@@ -229,7 +230,7 @@ def input_sales_for_week(product_range, week_number):
             try:
                 amount = int(
                     input(
-                        f"Enter the amount for '{item}' sold in week"
+                        f"\n Enter the amount for {item} sold in week "
                         "{week_number}:\n"
                     )
                 )
@@ -239,9 +240,9 @@ def input_sales_for_week(product_range, week_number):
 
                 else:
                     print(
-                        f"Sorry. The amount must be positive." 
-                        "Try again for '{item}'.")
-                    
+                        f"\n Sorry. The amount must be positive.\n"
+                        "Try again for {item}.")
+
             except ValueError as er:
                 print(
                     f"You entered {er}. Please enter a positive"
@@ -264,15 +265,15 @@ def choose_week():
                 print("Sorry. Week number must be between 1 and 52.")
         except ValueError as err:
             print(
-                f"You entered {err}. Please enter a number" 
+                f"You entered {err}.\n Please enter a number "
                 "between 1 and 52.")
-    
+
     return week_number
 
 
-def run_update_data(product):
+def run_update_sales(product):
     """
-    Runs sequences and launches functions for updating sales data 
+    Runs sequences and launches functions for updating sales data
     and storing them into the spreadsheet
     """
     week_number = choose_week()
@@ -281,7 +282,7 @@ def run_update_data(product):
     update_worksheet_data(
         WORKSHEET_TITLES[0], product, week_number, week_sales
         )
-    
+
     print(
         f"\n Sales for the week {week_number} have been stored "
         "to the spreadsheet."
@@ -292,7 +293,7 @@ def run_update_data(product):
     print("\n Sales forecast has been updated.")
 
     lead_time = define_lead_time(product)
-        
+
     if week_number < 52 - lead_time:
         print("\n Updating forward stocks...")
         update_forward_stocks(product, week_number)
@@ -311,7 +312,6 @@ def main():
         if you are new user have a look at the Glossary of Terms
         """
     )
-    
 
     main_menu = TerminalMenu(
         MAIN_MENU_OPTIONS, title="\n Please choose an option:\n "
@@ -328,119 +328,119 @@ def main():
 
     quit_program = False
 
-    while quit_program == False:
+    while quit_program is False:
         option_index = main_menu.show()
         option_choice = MAIN_MENU_OPTIONS[option_index]
 
-        if(option_choice == "[5] Exit"):
+        if (option_choice == "[5] Exit"):
 
             quit_program = True
             print(
                 "\n Thank you for using "
                 "the Forward Stock Plan Automation. See ya! \n")
-            
-        elif(option_choice == "[1] View Data"):
+
+        elif (option_choice == "[1] View Data"):
             sub_view_menu_index = sub_view_menu.show()
             sub_view_choice = SUB_OPTIONS_VIEW[sub_view_menu_index]
 
-            if(sub_view_choice == "[1] Planters"):
+            if (sub_view_choice == "[1] Planters"):
                 sub_sub_view_menu_index = sub_sub_view_menu.show()
                 sub_sub_view_choice = SUB_SUB_OPTIONS_VIEW[
                     sub_sub_view_menu_index]
-                
-                if(sub_sub_view_choice == "[1] Weekly Sales"):
+
+                if (sub_sub_view_choice == "[1] Weekly Sales"):
                     week_number = choose_week()
                     print_table(
-                        WORKSHEET_TITLES[0], 
-                        PRODUCT_RANGE[0], 
+                        WORKSHEET_TITLES[0],
+                        PRODUCT_RANGE[0],
                         week_number
                     )
 
-                elif(sub_sub_view_choice == "[2] Weekly Stocks"):
+                elif (sub_sub_view_choice == "[2] Weekly Stocks"):
                     week_number = choose_week()
                     print_table(
-                        WORKSHEET_TITLES[1], 
-                        PRODUCT_RANGE[0], 
+                        WORKSHEET_TITLES[1],
+                        PRODUCT_RANGE[0],
                         week_number
                     )
 
-                elif(sub_sub_view_choice == "[3] Deliveries"):
+                elif (sub_sub_view_choice == "[3] Deliveries"):
                     week_number = choose_week()
                     print_table(
-                        WORKSHEET_TITLES[2], 
-                        PRODUCT_RANGE[0], 
+                        WORKSHEET_TITLES[2],
+                        PRODUCT_RANGE[0],
                         week_number
                     )
 
-                elif(sub_sub_view_choice == "[4] Orders"):
+                elif (sub_sub_view_choice == "[4] Orders"):
                     week_number = choose_week()
                     print_table(
-                        WORKSHEET_TITLES[3], 
-                        PRODUCT_RANGE[0], 
+                        WORKSHEET_TITLES[3],
+                        PRODUCT_RANGE[0],
                         week_number
                     )
 
-                elif(
+                elif (
                     sub_sub_view_choice == "[5] Back to Product Range"
-                    ):
+                ):
                     pass
-            elif(sub_view_choice == "[2] Ritter Sport"):
+            elif (sub_view_choice == "[2] Ritter Sport"):
                 sub_sub_view_menu_index = sub_sub_view_menu.show()
                 sub_sub_view_choice = SUB_SUB_OPTIONS_VIEW[
                     sub_sub_view_menu_index]
-                if(sub_sub_view_choice == "[1] Weekly Sales"):
+                if (sub_sub_view_choice == "[1] Weekly Sales"):
                     week_number = choose_week()
                     print_table(
-                        WORKSHEET_TITLES[0], 
-                        PRODUCT_RANGE[1], 
-                        week_number
-                    )
-                    
-                elif(sub_sub_view_choice == "[2] Weekly Stocks"):
-                    week_number = choose_week()
-                    print_table(
-                        WORKSHEET_TITLES[1], 
-                        PRODUCT_RANGE[1], 
+                        WORKSHEET_TITLES[0],
+                        PRODUCT_RANGE[1],
                         week_number
                     )
 
-                elif(sub_sub_view_choice == "[3] Deliveries"):
+                elif (sub_sub_view_choice == "[2] Weekly Stocks"):
                     week_number = choose_week()
                     print_table(
-                        WORKSHEET_TITLES[2], 
-                        PRODUCT_RANGE[1], 
+                        WORKSHEET_TITLES[1],
+                        PRODUCT_RANGE[1],
                         week_number
                     )
 
-                elif(sub_sub_view_choice == "[4] Orders"):
+                elif (sub_sub_view_choice == "[3] Deliveries"):
                     week_number = choose_week()
                     print_table(
-                        WORKSHEET_TITLES[3], 
-                        PRODUCT_RANGE[1], 
+                        WORKSHEET_TITLES[2],
+                        PRODUCT_RANGE[1],
                         week_number
                     )
 
-                elif(sub_sub_view_choice == "[5] Back to Product Range"):
+                elif (sub_sub_view_choice == "[4] Orders"):
+                    week_number = choose_week()
+                    print_table(
+                        WORKSHEET_TITLES[3],
+                        PRODUCT_RANGE[1],
+                        week_number
+                    )
+
+                elif (sub_sub_view_choice == "[5] Back to Product Range"):
                     pass
 
-        elif(option_choice == "[2] Update Weekly Sales"):
+        elif (option_choice == "[2] Update Weekly Sales"):
             sub_update_index = sub_update_menu.show()
             sub_update_choice = SUB_OPTIONS_UPDATE[sub_update_index]
 
-            if(sub_update_choice == "[1] for Planters"):
-                run_update_data(PRODUCT_RANGE[0])
+            if (sub_update_choice == "[1] for Planters"):
+                run_update_sales(PRODUCT_RANGE[0])
 
-            elif(sub_update_choice == "[2] for Ritter Sport"):
-                run_update_data(PRODUCT_RANGE[1])
+            elif (sub_update_choice == "[2] for Ritter Sport"):
+                run_update_sales(PRODUCT_RANGE[1])
 
-            elif(sub_update_choice == "[3] Back to Main Menu"):
+            elif (sub_update_choice == "[3] Back to Main Menu"):
                 pass
 
-        elif(option_choice == "[3] Update Orders"):
+        elif (option_choice == "[3] Update Orders"):
             sub_update_index = sub_update_menu.show()
             sub_update_choice = SUB_OPTIONS_UPDATE[sub_update_index]
 
-            if(sub_update_choice == "[1] for Planters"):
+            if (sub_update_choice == "[1] for Planters"):
                 week_number = choose_week()
                 print(
                     "\n Calculating orders recommendation "
@@ -451,21 +451,21 @@ def main():
                 print("\n Storing data to the spreadsheet...")
 
                 update_worksheet_data(
-                    WORKSHEET_TITLES[3], 
-                    PRODUCT_RANGE[0], 
-                    week_number, 
+                    WORKSHEET_TITLES[3],
+                    PRODUCT_RANGE[0],
+                    week_number,
                     next_order
                 )
                 update_worksheet_data(
-                    WORKSHEET_TITLES[2], 
-                    PRODUCT_RANGE[0], 
-                    week_number, 
+                    WORKSHEET_TITLES[2],
+                    PRODUCT_RANGE[0],
+                    week_number,
                     deliveries
                 )
                 update_worksheet_data(
-                    WORKSHEET_TITLES[1], 
-                    PRODUCT_RANGE[0], 
-                    week_number, 
+                    WORKSHEET_TITLES[1],
+                    PRODUCT_RANGE[0],
+                    week_number,
                     stocks
                 )
                 print(
@@ -473,7 +473,7 @@ def main():
                     "have been updated."
                 )
 
-            elif(sub_update_choice == "[2] for Ritter Sport"):
+            elif (sub_update_choice == "[2] for Ritter Sport"):
                 week_number = choose_week()
                 print(
                     "\n Calculating orders recommendation "
@@ -483,31 +483,31 @@ def main():
                 )
                 print("\n Storing data to the spreadsheet...")
                 update_worksheet_data(
-                    WORKSHEET_TITLES[3], 
-                    PRODUCT_RANGE[1], 
-                    week_number, 
+                    WORKSHEET_TITLES[3],
+                    PRODUCT_RANGE[1],
+                    week_number,
                     next_order
                 )
                 update_worksheet_data(
-                    WORKSHEET_TITLES[2], 
-                    PRODUCT_RANGE[1], 
-                    week_number, 
+                    WORKSHEET_TITLES[2],
+                    PRODUCT_RANGE[1],
+                    week_number,
                     deliveries
                 )
                 update_worksheet_data(
-                    WORKSHEET_TITLES[1], 
-                    PRODUCT_RANGE[1], 
-                    week_number, 
+                    WORKSHEET_TITLES[1],
+                    PRODUCT_RANGE[1],
+                    week_number,
                     stocks
                 )
                 print(
                     "\n Orders, deliveries and stocks"
                     "for Ritter Sport have been updated.")
-                
-            elif(sub_update_choice == "[3] Back to Main Menu"):
+
+            elif (sub_update_choice == "[3] Back to Main Menu"):
                 pass
 
-        elif(option_choice == "[4] Glossary of Terms"):
+        elif (option_choice == "[4] Glossary of Terms"):
 
             print_glossary()
 
@@ -517,6 +517,5 @@ def main():
             pass
 
 
-if (__name__ == "__main__"): 
+if (__name__ == "__main__"):
     main()
-        
