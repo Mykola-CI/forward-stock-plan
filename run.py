@@ -5,6 +5,8 @@ import statistics
 from simple_term_menu import TerminalMenu
 from tabulate import tabulate
 from colorama import Fore, Back, Style
+from constants import *
+from menus import *
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -18,61 +20,6 @@ CREDS = Credentials.from_service_account_file('creds.json')
 SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('forward_stock_plan')
-
-# WORKSHEET TITLES IN THE SPREADSHEET
-WORKSHEET_TITLES = [
-    'Weekly Sales',
-    'Weekly Stocks',
-    'Deliveries',
-    'Orders'
-]
-
-# PRODUCT RANGES BY BRANDS:
-PRODUCT_RANGE = ['PLANTERS', 'RITTER SPORT']
-
-# PLANTERS PRODUCTS
-PLANTERS = [
-    'Roasted Almonds',
-    'Salted Peanuts',
-    'Mixed Nuts',
-    'Honey Roasted Peanuts',
-    'Cheez Balls',
-    'Cashew'
-]
-
-# RITTER SPORT PRODUCTS
-RITTER = [
-    'Rum Raisings Hazelnut',
-    'Marzipan',
-    'Whole Hazelnut',
-    'Honey Salted Almonds'
-]
-
-# PRODUCT RANGES BY BRANDS FOR FURTHER ACCESS TO ITEMS:
-PRODUCT_DICT = {'PLANTERS': PLANTERS, 'RITTER SPORT': RITTER}
-
-# MINIMUM ORDER QUANTITY IN RELATION TO SALES
-SAFETY_MARGIN = 1.2
-
-# MINIMUM STOCK LEVEL IN RELATION TO SALES
-MIN_STOCK_LEVEL = 1.2
-
-# UNITS PER CARTON
-PLANTERS_UPC = 6
-RITTER_UPC = 10
-
-# LEAD TIMES
-PLANTERS_LT = 3
-RITTER_LT = 2
-
-# The start row number for the Planters products
-PLANTERS_START_ROW = 3
-
-# Number of weeks to update sales forecasts
-WEEKS_TO_FORECAST = 8
-
-# The row number for the weeks in the spreadsheet
-WEEKS_ROW_NUMBER = 1
 
 
 class Worksheets:
@@ -202,13 +149,19 @@ def update_sales_forecast(product, week_number):
 
     current_week_index = sales.get_week_index(week_number)
 
-    retrospective_average_sales = calculate_average_sales(
+    retrospective_average = calculate_average_sales(
         product, sales_values, current_week_index
     )
 
-    sales_forecast = [
-        [mean]*WEEKS_TO_FORECAST for mean in retrospective_average_sales
-    ]
+    if week_number < 52 - WEEKS_TO_FORECAST:
+        sales_forecast = [
+            [mean]*WEEKS_TO_FORECAST for mean in retrospective_average
+        ]
+    else:
+        sales_forecast = [
+            [mean]*(52 - week_number) for mean in retrospective_average
+        ]
+
 
     update_worksheet_data(
         WORKSHEET_TITLES[0], product, week_number+1, sales_forecast
@@ -219,25 +172,25 @@ def update_sales_forecast(product, week_number):
 
 def calculate_forward_stocks(stocks_values, sales_values, deliveries_values):
     """
-    Calculate and compose forward stock plan based on sales, 
-    deliveries and stocks data
+    Calculate and compose forward stock plan based on sales forecast, 
+    planned deliveries and the beginning stock
     """
-    forward_stocks = []
     for i in range(len(stocks_values)):
-        forward_stocks_row = [stocks_values[i][0] 
-            - sum(sales_values[i][:j+1]) 
-            + sum(deliveries_values[i][:j+1]) 
-            for j in range(len(sales_values[i])-1)]
+        for k in range(1, len(stocks_values[i])):
+                if stocks_values[i][k-1] <= sales_values[i][k - 1]:
+                    stocks_values[i][k] = deliveries_values[i][k - 1]
+                else:
+                    stocks_values[i][k] = (
+                        stocks_values[i][k - 1]
+                        + deliveries_values[i][k - 1]
+                        - sales_values[i][k - 1]
+                    )
 
-        forward_stocks.append(forward_stocks_row)
-    
-    forward_stock_plan = [[0 if num < 0 else num for num in sublist] 
-                    for sublist in forward_stocks]
-
-    return forward_stock_plan
+    return stocks_values
 
 
 def update_forward_stocks(product, week_number):
+    """Stores forward stock plan to the spreadsheet"""
 
     stocks = Worksheets(WORKSHEET_TITLES[1])
     stocks_values = stocks.slice_past_weeks(product, week_number)
@@ -251,7 +204,7 @@ def update_forward_stocks(product, week_number):
     )
 
     update_worksheet_data(
-        WORKSHEET_TITLES[1], product, week_number+1, forward_stock_plan
+        WORKSHEET_TITLES[1], product, week_number, forward_stock_plan
     )
 
     return None
@@ -260,7 +213,7 @@ def update_forward_stocks(product, week_number):
 def calculate_orders(product, week_number):
     """
     Calculates orders recommendation for a given product range 
-    starting form a chosen week to the end of year. 
+    starting from a chosen week to the end of year. 
     Updates deliveries plan and forward stock plan. 
     Returns lists of lists for orders, deliveries and stocks
     """
@@ -299,8 +252,11 @@ def calculate_orders(product, week_number):
             if stocks_row[k-1] <= sales_values[i][k - 1]:
                 stocks_row[k] = deliveries_row[k - 1]
             else:
-                stocks_row[k] = stocks_row[k - 1] 
-                + deliveries_row[k - 1] - sales_values[i][k - 1]
+                stocks_row[k] = (
+                    stocks_row[k - 1]
+                    + deliveries_row[k - 1]
+                    - sales_values[i][k - 1]
+                )
 
         for j in range(len(sales_values[i])):
             ave_sale_lead_time = math.ceil(
@@ -325,17 +281,19 @@ def calculate_orders(product, week_number):
                             if stocks_row[k-1] <= sales_values[i][k - 1]:
                                 stocks_row[k] = deliveries_row[k - 1]
                             else:
-                                stocks_row[k] = stocks_row[k - 1] 
-                                + deliveries_row[k - 1] 
-                                - sales_values[i][k - 1]
+                                stocks_row[k] = (
+                                    stocks_row[k - 1]
+                                    + deliveries_row[k - 1]
+                                    - sales_values[i][k - 1]
+                                )
 
                 elif j + lead_time + 1 == len(sales_values[i]):
                     orders_row[j] = max(
                         math.ceil(
                         ave_sale_lead_time * (lead_time+1) * SAFETY_MARGIN
                     ) - (
-                        stocks_row[j + lead_time] 
-                        - sales_values[i][j+lead_time] 
+                        stocks_row[j + lead_time]
+                        - sales_values[i][j+lead_time]
                         + deliveries_row[j+lead_time]
                     ), 
                     0
@@ -470,6 +428,13 @@ def print_table(worksheet, product_range, week_number):
         )
     )
 
+    return None
+
+def print_glossary():
+    with open('glossary.txt', 'r') as file:
+        glossary_text = file.read()
+        print(glossary_text)
+
 
 def main():
     """Main function"""
@@ -482,49 +447,25 @@ def main():
         """
     )
     
-    main_menu_options = [
-        "[1] View Data", 
-        "[2] Update Weekly Sales", 
-        "[3] Update Orders", 
-        "[4] Glossary of Terms",  
-        "[5] Exit"
-    ]
-    sub_options_update = [
-        "[1] for Planters", 
-        "[2] for Ritter Sport", 
-        "[3] Back to Main Menu"
-    ]
-    sub_options_view = [
-        "[1] Planters", 
-        "[2] Ritter Sport", 
-        "[3] Back to Main Menu"
-    ]
-    sub_sub_options_view = [
-        "[1] Weekly Sales", 
-        "[2] Weekly Stocks", 
-        "[3] Deliveries", 
-        "[4] Orders", 
-        "[5] Back to Product Range"
-    ]
 
     main_menu = TerminalMenu(
-        main_menu_options, title="\n Please choose an option:\n "
+        MAIN_MENU_OPTIONS, title="\n Please choose an option:\n "
     )
     sub_update_menu = TerminalMenu(
-        sub_options_update, title="Please choose a product range:"
+        SUB_OPTIONS_UPDATE, title="Please choose a product range:"
     )
     sub_view_menu = TerminalMenu(
-        sub_options_view, title="Please choose a product range:"
+        SUB_OPTIONS_VIEW, title="Please choose a product range:"
     )
     sub_sub_view_menu = TerminalMenu(
-        sub_sub_options_view, title="Please choose a worksheet to view:"
+        SUB_SUB_OPTIONS_VIEW, title="Please choose a worksheet to view:"
     )
 
     quit_program = False
 
     while quit_program == False:
         option_index = main_menu.show()
-        option_choice = main_menu_options[option_index]
+        option_choice = MAIN_MENU_OPTIONS[option_index]
 
         if(option_choice == "[5] Exit"):
 
@@ -535,11 +476,11 @@ def main():
             
         elif(option_choice == "[1] View Data"):
             sub_view_menu_index = sub_view_menu.show()
-            sub_view_choice = sub_options_view[sub_view_menu_index]
+            sub_view_choice = SUB_OPTIONS_VIEW[sub_view_menu_index]
 
             if(sub_view_choice == "[1] Planters"):
                 sub_sub_view_menu_index = sub_sub_view_menu.show()
-                sub_sub_view_choice = sub_sub_options_view[
+                sub_sub_view_choice = SUB_SUB_OPTIONS_VIEW[
                     sub_sub_view_menu_index]
                 
                 if(sub_sub_view_choice == "[1] Weekly Sales"):
@@ -580,7 +521,7 @@ def main():
                     pass
             elif(sub_view_choice == "[2] Ritter Sport"):
                 sub_sub_view_menu_index = sub_sub_view_menu.show()
-                sub_sub_view_choice = sub_sub_options_view[
+                sub_sub_view_choice = SUB_SUB_OPTIONS_VIEW[
                     sub_sub_view_menu_index]
                 if(sub_sub_view_choice == "[1] Weekly Sales"):
                     week_number = choose_week()
@@ -619,7 +560,7 @@ def main():
 
         elif(option_choice == "[2] Update Weekly Sales"):
             sub_update_index = sub_update_menu.show()
-            sub_update_choice = sub_options_update[sub_update_index]
+            sub_update_choice = SUB_OPTIONS_UPDATE[sub_update_index]
 
             if(sub_update_choice == "[1] for Planters"):
                 run_update_data(PRODUCT_RANGE[0])
@@ -632,7 +573,7 @@ def main():
 
         elif(option_choice == "[3] Update Orders"):
             sub_update_index = sub_update_menu.show()
-            sub_update_choice = sub_options_update[sub_update_index]
+            sub_update_choice = SUB_OPTIONS_UPDATE[sub_update_index]
 
             if(sub_update_choice == "[1] for Planters"):
                 week_number = choose_week()
@@ -703,70 +644,14 @@ def main():
 
         elif(option_choice == "[4] Glossary of Terms"):
 
-            print(
-                f"""
-                --------------------------------------------
-                GLOSSARY OF TERMS
-                --------------------------------------------
-                OPTIONS:
-                --------------------------------------------
-                [1] View Data - view sales, stocks, orders, deliveries
-                for a given product range and week number. Data is 
-                presented in a table format for all weeks from the
-                chosen week number to the end of year
+            print_glossary()
 
-                [2] Update Weekly Sales - type in sales for a given
-                product range and week. The data can be updated 
-                for any chosen week to record either actual sales or 
-                update forecasts. Once all items for the product range 
-                have been typed in, the program calculates and updates 
-                sales forecast and stocks.    
-                Both sales Sales and Stocks are then stored in
-                their respective worksheets
-
-                [3] Update Orders - calculate orders recommendation 
-                based on new sales, stocks and deliveries data for a 
-                given week number and product range. Updates Orders, 
-                deliveries, and stocks worksheets
-
-                --------------------------------------------
-                
-                Product Ranges - product items under one umbrella brand.
-                Currently there are two product ranges: Planters and
-                Ritter Sport
-
-                Week Number - the number of the week in the year
-                
-                Weekly Sales - the number of units sold in a given week
-                or with regards to future weeks - sales forecast
-
-                Weekly Stocks - the number of units in stock at 
-                (important!) the beginning of the week
-
-                Orders - the number of units to be ordered in 
-                a particular week (recommendation)
-
-                Deliveries - the number of units delivered in 
-                the past week or with regards to future weeks - 
-                to be delivered at the estimated week of delivery
-
-                Lead Time - the number of weeks between placing 
-                the order and receiving the delivery
-
-                Forward Stock Plan - the number of units in stock 
-                estimated for all future weeks at the current rate of 
-                sales and expected deliveries
-
-                Safety Margin - the percentage of additional units to 
-                order on top of the average sales to avoid stockouts
-
-                Minimum Stock Level - the multiple of average sales
-                to keep in stock to avoid stockouts
-                """
-            )
-            input("\n Press Enter to continue...\n")
+            input(
+                "\n Scroll Up to see the beginning of the Glossary.\n"
+                "\n Press Enter to return to the Main menu...\n")
             pass
 
 
 if (__name__ == "__main__"): 
     main()
+        
