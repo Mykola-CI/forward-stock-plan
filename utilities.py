@@ -1,3 +1,4 @@
+import os
 import gspread
 from google.oauth2.service_account import Credentials
 from colorama import Fore, Back, Style
@@ -146,9 +147,8 @@ def print_table(worksheet, product_range, week_number):
 
 
 def print_glossary():
-    """
-    Prints the glossary of terms from the glossary.txt file
-    """
+    """Prints the glossary of terms from the glossary.txt file"""
+
     with open('glossary.txt', 'r') as file:
         glossary_text = file.read()
         print(glossary_text)
@@ -157,9 +157,8 @@ def print_glossary():
 
 
 def define_lead_time(product):
-    """
-    Defines the lead time for the given product range
-    """
+    """Defines the lead time for the given product range"""
+
     if product == PRODUCT_RANGE[0]:
         lead_time = PLANTERS_LT
     elif product == PRODUCT_RANGE[1]:
@@ -170,3 +169,15 @@ def define_lead_time(product):
             'the Product range does not exist')
 
     return lead_time
+
+
+def clear_screen():
+    """Clears the screen"""
+
+    # for Windows
+    if os.name == 'nt':
+        os.system('cls')
+
+    # for Unix/Linux/macOS
+    else:
+        os.system('clear')

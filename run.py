@@ -231,7 +231,7 @@ def input_sales_for_week(product_range, week_number):
                 amount = int(
                     input(
                         f"\n Enter the amount for {item} sold in week "
-                        "{week_number}:\n"
+                        f"{week_number} :\n"
                     )
                 )
                 week_sales.append([amount])
@@ -241,11 +241,11 @@ def input_sales_for_week(product_range, week_number):
                 else:
                     print(
                         f"\n Sorry. The amount must be positive.\n"
-                        "Try again for {item}.")
+                        f"Try again for {item}.")
 
             except ValueError as er:
                 print(
-                    f"You entered {er}. Please enter a positive"
+                    f"\n You entered {er}. Please enter a positive "
                     "integer or 0."
                 )
 
@@ -258,11 +258,11 @@ def choose_week():
     """
     while True:
         try:
-            week_number = int(input("Enter the week number: \n"))
+            week_number = int(input("\n Enter the week number: \n"))
             if 1 <= week_number <= 52:
                 break
             else:
-                print("Sorry. Week number must be between 1 and 52.")
+                print("\n Sorry. Week number must be between 1 and 52.\n")
         except ValueError as err:
             print(
                 f"You entered {err}.\n Please enter a number "
@@ -285,7 +285,7 @@ def run_update_sales(product):
 
     print(
         f"\n Sales for the week {week_number} have been stored "
-        "to the spreadsheet."
+        "to the spreadsheet.\n"
         )
 
     print("\n Updating sales forecast...")
@@ -317,13 +317,13 @@ def main():
         MAIN_MENU_OPTIONS, title="\n Please choose an option:\n "
     )
     sub_update_menu = TerminalMenu(
-        SUB_OPTIONS_UPDATE, title="Please choose a product range:"
+        SUB_OPTIONS_UPDATE, title="\n Please choose a product range:\n"
     )
     sub_view_menu = TerminalMenu(
-        SUB_OPTIONS_VIEW, title="Please choose a product range:"
+        SUB_OPTIONS_VIEW, title="\n Please choose a product range:\n"
     )
     sub_sub_view_menu = TerminalMenu(
-        SUB_SUB_OPTIONS_VIEW, title="Please choose a worksheet to view:"
+        SUB_SUB_OPTIONS_VIEW, title="\n Please choose a worksheet to view:\n"
     )
 
     quit_program = False
@@ -383,7 +383,9 @@ def main():
                 elif (
                     sub_sub_view_choice == "[5] Back to Product Range"
                 ):
+                    clear_screen()
                     pass
+
             elif (sub_view_choice == "[2] Ritter Sport"):
                 sub_sub_view_menu_index = sub_sub_view_menu.show()
                 sub_sub_view_choice = SUB_SUB_OPTIONS_VIEW[
@@ -421,6 +423,7 @@ def main():
                     )
 
                 elif (sub_sub_view_choice == "[5] Back to Product Range"):
+                    clear_screen()
                     pass
 
         elif (option_choice == "[2] Update Weekly Sales"):
@@ -434,6 +437,7 @@ def main():
                 run_update_sales(PRODUCT_RANGE[1])
 
             elif (sub_update_choice == "[3] Back to Main Menu"):
+                clear_screen()
                 pass
 
         elif (option_choice == "[3] Update Orders"):
@@ -505,6 +509,7 @@ def main():
                     "for Ritter Sport have been updated.")
 
             elif (sub_update_choice == "[3] Back to Main Menu"):
+                clear_screen()
                 pass
 
         elif (option_choice == "[4] Glossary of Terms"):
@@ -514,6 +519,7 @@ def main():
             input(
                 "\n Scroll Up to see the beginning of the Glossary.\n"
                 "\n Press Enter to return to the Main menu...\n")
+            clear_screen()
             pass
 
 
