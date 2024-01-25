@@ -336,13 +336,14 @@ def main():
             quit_program = True
             print(
                 "\n Thank you for using "
-                "the Forward Stock Plan Automation. See ya! \n")
+                "the Forward Stock Plan Automation.\n")
 
         elif (option_choice == "[1] View Data"):
             sub_view_menu_index = sub_view_menu.show()
             sub_view_choice = SUB_OPTIONS_VIEW[sub_view_menu_index]
 
             if (sub_view_choice == "[1] Planters"):
+                clear_screen()
                 sub_sub_view_menu_index = sub_sub_view_menu.show()
                 sub_sub_view_choice = SUB_SUB_OPTIONS_VIEW[
                     sub_sub_view_menu_index]
@@ -386,6 +387,7 @@ def main():
                     pass
 
             elif (sub_view_choice == "[2] Ritter Sport"):
+                clear_screen()
                 sub_sub_view_menu_index = sub_sub_view_menu.show()
                 sub_sub_view_choice = SUB_SUB_OPTIONS_VIEW[
                     sub_sub_view_menu_index]
@@ -444,6 +446,7 @@ def main():
             sub_update_choice = SUB_OPTIONS_UPDATE[sub_update_index]
 
             if (sub_update_choice == "[1] for Planters"):
+                clear_screen()
                 week_number = choose_week()
                 print(
                     "\n Calculating orders recommendation "
@@ -477,6 +480,7 @@ def main():
                 )
 
             elif (sub_update_choice == "[2] for Ritter Sport"):
+                clear_screen()
                 week_number = choose_week()
                 print(
                     "\n Calculating orders recommendation "
