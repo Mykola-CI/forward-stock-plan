@@ -98,7 +98,36 @@ To choose the product range to work with in order to View Data, Update Weekly Sa
 
 ![Sub-menus](documentation/sub-menu-products.png)
 
+```mermaid
+flowchart TB
+A[Main Menu]-->AB(View data)
+A-->AC(Update Weekly Sales)
+A-->AD(Update Orders)
+A-->AE(Glossary of Terms)
+A-->AF(Exit)
+AB-->ABP(Choose Product range)
+AC-->ABP(Choose Product range)
+AD-->ABP(Choose Product range)
+```
 
-
-
+```mermaid
+flowchart TB
+AB(View Data)-->ABP(Choose Product Range)
+ABP-->WS(Weekly Sales)
+ABP-->WSt(Weekly Stocks)
+ABP-->D(Deliveries)
+ABP-->O(Orders)
+ABP-->B(Back To The Main menu)
+WS-->W[[Choose Week Number - Type in the number between 1 and 52]]
+WSt-->W
+D-->W
+O-->W
+W-->TD[(Table Data: Rows-week numbers / Columns- Product Items)]
+```
+```mermaid
+flowchart TB
+AC(Update Weekly Sales)-->ABP(Choose Product Range)
+ABP-->W[[Choose Week Number - Type in the number between 1 and 52]]
+W-->TYPE[[Type In Number of Units Sold per Chosen Week - one by one for each item]]
+```
   
