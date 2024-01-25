@@ -308,7 +308,7 @@ def main():
         f"""
         WELCOME TO THE FORWARD STOCK PLAN AUTOMATION
         --------------------------------------------
-        if you are new user have a look at the Glossary of Terms
+        Refer to the Glossary of Terms for guidance and definitions.
         """
     )
 
