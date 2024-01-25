@@ -335,15 +335,21 @@ def main():
 
             quit_program = True
             print(
-                "\n Thank you for using "
-                "the Forward Stock Plan Automation.\n")
+                f"""
+                Thank you for using the Forward Stock Plan Automation.
+                ------------------------------------------------------
+                """
+            )
 
         elif (option_choice == "[1] View Data"):
+            clear_screen()
+            print("View Data menu")
             sub_view_menu_index = sub_view_menu.show()
             sub_view_choice = SUB_OPTIONS_VIEW[sub_view_menu_index]
 
             if (sub_view_choice == "[1] Planters"):
                 clear_screen()
+                print("View Data for Planters menu")
                 sub_sub_view_menu_index = sub_sub_view_menu.show()
                 sub_sub_view_choice = SUB_SUB_OPTIONS_VIEW[
                     sub_sub_view_menu_index]
@@ -387,6 +393,7 @@ def main():
                     pass
 
             elif (sub_view_choice == "[2] Ritter Sport"):
+                print("View Data for Ritter Sport menu")
                 clear_screen()
                 sub_sub_view_menu_index = sub_sub_view_menu.show()
                 sub_sub_view_choice = SUB_SUB_OPTIONS_VIEW[
@@ -428,13 +435,19 @@ def main():
                     pass
 
         elif (option_choice == "[2] Update Weekly Sales"):
+            clear_screen()
+            print("Update Weekly Sales menu")
             sub_update_index = sub_update_menu.show()
             sub_update_choice = SUB_OPTIONS_UPDATE[sub_update_index]
 
             if (sub_update_choice == "[1] for Planters"):
+                clear_screen()
+                print("Update Weekly Sales for Planters menu")
                 run_update_sales(PRODUCT_RANGE[0])
 
             elif (sub_update_choice == "[2] for Ritter Sport"):
+                clear_screen()
+                print("Update Weekly Sales for Ritter Sport menu")
                 run_update_sales(PRODUCT_RANGE[1])
 
             elif (sub_update_choice == "[3] Back to Main Menu"):
@@ -442,11 +455,14 @@ def main():
                 pass
 
         elif (option_choice == "[3] Update Orders"):
+            clear_screen()
+            print("Update Orders menu")
             sub_update_index = sub_update_menu.show()
             sub_update_choice = SUB_OPTIONS_UPDATE[sub_update_index]
 
             if (sub_update_choice == "[1] for Planters"):
                 clear_screen()
+                print("Update Orders for Planters menu")
                 week_number = choose_week()
                 print(
                     "\n Calculating orders recommendation "
@@ -481,6 +497,7 @@ def main():
 
             elif (sub_update_choice == "[2] for Ritter Sport"):
                 clear_screen()
+                print("Update Orders for Ritter Sport menu")
                 week_number = choose_week()
                 print(
                     "\n Calculating orders recommendation "

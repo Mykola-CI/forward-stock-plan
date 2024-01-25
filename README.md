@@ -65,8 +65,40 @@ The application assumes easy settings for adding both new product ranges and new
 ## Features
 The application is run in terminal. Once being launched it displays a welcome message and a main menu.
 
+![Main Menu](documentation/main-menu.png)
+
+- Main menu
+    - _[1] View Data_ - view sales, stocks, orders, deliveries
+    for a given product range and week number. Data is 
+    presented in a table format for all weeks from the
+    chosen week number to the end of year
+
+    - _[2] Update Weekly Sales_ - type in sales for the chosen
+    product range and week. The data can be updated 
+    for any chosen week to record either actual sales or 
+    update forecasts. Once all items for the product range 
+    have been typed in, the application calculates and updates 
+    sales forecast and stocks.    
+    Both Sales and Stocks are then stored in
+    their respective worksheets
+
+    - [3] _Update Orders_ - calculate orders recommendation 
+    based on new sales, stocks and deliveries data for a 
+    given week number and product range. Updates Orders, 
+    Deliveries, and Stocks to the respective worksheets
+
+    - [4] _Glossary of Terms_ - basic glossary which provides guidance 
+    on using options of the menu and terminology definitions
+
+    - [5] _Exit_ - The correct way to exit the application without hard reset
+
+-  _[1] View Data_, _[2] Update Weekly Sales_, [3] _Update Orders_ sub-menus:
+
+To choose the product range to work with in order to View Data, Update Weekly Sales or Update Orders.
+
+![Sub-menus](documentation/sub-menu-products.png)
 
 
- - Main menu
+
 
   
