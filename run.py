@@ -71,23 +71,22 @@ def update_sales_forecast(product, week_number):
     return None
 
 
-def calculate_forward_stocks(stocks_values, sales_values, deliveries_values):
-    """
-    Calculate and compose forward stock plan based on sales forecast,
-    planned deliveries and the beginning stock
-    """
-    for i in range(len(stocks_values)):
-        for k in range(1, len(stocks_values[i])):
-            if stocks_values[i][k-1] <= sales_values[i][k - 1]:
-                stocks_values[i][k] = deliveries_values[i][k - 1]
-            else:
-                stocks_values[i][k] = (
-                    stocks_values[i][k - 1]
-                    + deliveries_values[i][k - 1]
-                    - sales_values[i][k - 1]
-                )
+def calculate_stocks_for_item(
+    from_index, sales_row, deliveries_row, stocks_row
+):
+    """Calculates stocks for an item from a given index in the list"""
 
-    return stocks_values
+    for k in range(from_index, len(sales_row)):
+        if stocks_row[k-1] <= sales_row[k - 1]:
+            stocks_row[k] = deliveries_row[k - 1]
+        else:
+            stocks_row[k] = (
+                stocks_row[k - 1]
+                + deliveries_row[k - 1]
+                - sales_row[k - 1]
+            )
+
+    return stocks_row
 
 
 def update_forward_stocks(product, week_number):
@@ -100,9 +99,16 @@ def update_forward_stocks(product, week_number):
     deliveries = Worksheets(WORKSHEET_TITLES[2])
     deliveries_values = deliveries.slice_past_weeks(product, week_number)
 
-    forward_stock_plan = calculate_forward_stocks(
-        stocks_values, sales_values, deliveries_values
-    )
+    # forward_stock_plan = calculate_forward_stocks(
+    #     stocks_values, sales_values, deliveries_values
+    # )
+    forward_stock_plan = []
+    for i in range(len(stocks_values)):
+        forward_stock_plan.append(
+            calculate_stocks_for_item(
+                1, sales_values[i], deliveries_values[i], stocks_values[i]
+            )
+        )
 
     update_worksheet_data(
         WORKSHEET_TITLES[1], product, week_number, forward_stock_plan
@@ -136,32 +142,27 @@ def calculate_orders(product, week_number):
     deliveries = []
     stocks = []
     for i in range(len(sales_values)):
-        orders_row = [0]*len(sales_values[i])
-        deliveries_row = [0]*len(sales_values[i])
+        sales_row = sales_values[i]
+        orders_row = [0]*len(sales_row)
+        deliveries_row = [0]*len(sales_row)
         deliveries_row[:lead_time] = deliveries_values[i][:lead_time]
-        stocks_row = [0]*len(sales_values[i])
+        stocks_row = [0]*len(sales_row)
         stocks_row[0] = forward_stocks_values[i][0]
 
-        for k in range(1, len(sales_values[i])):
-            if stocks_row[k-1] <= sales_values[i][k - 1]:
-                stocks_row[k] = deliveries_row[k - 1]
-            else:
-                stocks_row[k] = (
-                    stocks_row[k - 1]
-                    + deliveries_row[k - 1]
-                    - sales_values[i][k - 1]
-                )
+        stocks_row = calculate_stocks_for_item(
+            1, sales_row, deliveries_row, stocks_row
+        )
 
-        for j in range(len(sales_values[i])):
+        for j in range(len(sales_row)):
             ave_sale_lead_time = math.ceil(
-                statistics.mean(sales_values[i][j:j+lead_time+2])
+                statistics.mean(sales_row[j:j+lead_time+2])
             )
 
             if stocks_row[j] < ave_sale_lead_time * (
                 lead_time+1
             ) * MIN_STOCK_LEVEL:
 
-                if j + lead_time + 1 < len(sales_values[i]):
+                if j + lead_time + 1 < len(sales_row):
                     orders_row[j] = max(
                         math.ceil(
                             ave_sale_lead_time * SAFETY_MARGIN * (lead_time+1)
@@ -171,23 +172,21 @@ def calculate_orders(product, week_number):
                     deliveries_row[j+lead_time] = orders_row[j]
 
                     if deliveries_row[j+lead_time] != 0:
-                        for k in range(j + lead_time, len(sales_values[i])):
-                            if stocks_row[k-1] <= sales_values[i][k - 1]:
-                                stocks_row[k] = deliveries_row[k - 1]
-                            else:
-                                stocks_row[k] = (
-                                    stocks_row[k - 1]
-                                    + deliveries_row[k - 1]
-                                    - sales_values[i][k - 1]
-                                )
 
-                elif j + lead_time + 1 == len(sales_values[i]):
+                        stocks_row = calculate_stocks_for_item(
+                            j + lead_time,
+                            sales_row,
+                            deliveries_row,
+                            stocks_row
+                        )
+
+                elif j + lead_time + 1 == len(sales_row):
                     orders_row[j] = max(
                         math.ceil(
                             ave_sale_lead_time * (lead_time+1) * SAFETY_MARGIN
                         ) - (
                             stocks_row[j + lead_time]
-                            - sales_values[i][j+lead_time]
+                            - sales_row[j+lead_time]
                             + deliveries_row[j+lead_time]
                         ),
                         0
@@ -505,7 +504,7 @@ def main():
                     stocks
                 )
                 print(
-                    "\n Orders, deliveries and stocks"
+                    "\n Orders, deliveries and stocks "
                     "for Ritter Sport have been updated.")
 
             elif (sub_update_choice == "[3] Back to Main Menu"):
