@@ -65,6 +65,8 @@ The application assumes easy settings for adding both new product ranges and new
 ## Features
 The application is run in terminal. Once being launched it displays a welcome message and a main menu.
 
+### Navigating menus
+
 ![Main Menu](documentation/main-menu.png)
 
 - Main menu
@@ -92,9 +94,8 @@ The application is run in terminal. Once being launched it displays a welcome me
 
     - [5] _Exit_ - The correct way to exit the application without hard reset
 
--  _[1] View Data_, _[2] Update Weekly Sales_, [3] _Update Orders_ sub-menus:
-
-To choose the product range to work with in order to View Data, Update Weekly Sales or Update Orders.
+-  _[1] View Data_, _[2] Update Weekly Sales_, [3] _Update Orders_ sub-menu, which is common for these 3:
+    - choose the product range to work with in order to View Data, Update Weekly Sales or Update Orders.
 
 ![Sub-menus](documentation/sub-menu-products.png)
 
@@ -112,22 +113,34 @@ AD-->ABP(Choose Product range)
 
 ```mermaid
 flowchart TB
+A[Main Menu]-->AB(View data)
 AB(View Data)-->ABP(Choose Product Range)
 ABP-->WS(Weekly Sales)
 ABP-->WSt(Weekly Stocks)
 ABP-->D(Deliveries)
 ABP-->O(Orders)
-ABP-->B(Back To The Main menu)
+AB-->B(Back To The Main menu)
 WS-->W[[Choose Week Number - Type in the number between 1 and 52]]
 WSt-->W
 D-->W
 O-->W
-W-->TD[(Table Data: Rows-week numbers / Columns- Product Items)]
+W--->TD[(Display Table Data: Rows-week numbers / Columns- Product Items)]
+TD--appear under the displayed table-->A
 ```
 ```mermaid
 flowchart TB
+A[Main Menu]-->AC
 AC(Update Weekly Sales)-->ABP(Choose Product Range)
 ABP-->W[[Choose Week Number - Type in the number between 1 and 52]]
 W-->TYPE[[Type In Number of Units Sold per Chosen Week - one by one for each item]]
+TYPE--returns after updating data-->A
 ```
   
+```mermaid
+flowchart TB
+A[Main Menu]-->AD
+AD(Update Orders)-->ABP(Choose Product Range)
+ABP-->W[[Choose Week Number - Type in the number between 1 and 52]]
+W-->CAO([Calculates Orders Recommendation and updates Deliveries and Stocks])
+CAO--return Main Menu after all calculations-->A
+```
