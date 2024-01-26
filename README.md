@@ -99,6 +99,8 @@ The application is run in terminal. Once being launched it displays a welcome me
 
 ![Sub-menus](documentation/sub-menu-products.png)
 
+- Main Menu Chart
+
 ```mermaid
 flowchart TB
 A[Main Menu]-->AB(View data)
@@ -106,41 +108,66 @@ A-->AC(Update Weekly Sales)
 A-->AD(Update Orders)
 A-->AE(Glossary of Terms)
 A-->AF(Exit)
-AB-->ABP(Choose Product range)
-AC-->ABP(Choose Product range)
-AD-->ABP(Choose Product range)
+AB-->ABP(Choose Product Range<br>sub-menu)
+AC-->ABP
+AD-->ABP
 ```
+-------------------
+- View Data sub-menu
 
 ```mermaid
 flowchart TB
-A[Main Menu]-->AB(View data)
-AB(View Data)-->ABP(Choose Product Range)
+A[Main Menu]-->AB(View Data<br>sub-menu)
+AB-->ABP(Choose Product Range<br>sub-menu)
 ABP-->WS(Weekly Sales)
 ABP-->WSt(Weekly Stocks)
 ABP-->D(Deliveries)
 ABP-->O(Orders)
 AB-->B(Back To The Main menu)
-WS-->W[[Choose Week Number - Type in the number between 1 and 52]]
+B-->A
+WS-->W[[Choose Week Number <br>Type in the number between 1 and 52]]
 WSt-->W
 D-->W
 O-->W
-W--->TD[(Display Table Data: Rows-week numbers / Columns- Product Items)]
-TD--appear under the displayed table-->A
+W--->TD[(Table Data displayed in terminal:<br> Rows-week numbers / Columns- Product Items)]
+TD-.-P([The data is presented for the period<br> from the chosen week to the end of year])
+TD--Main Menu <br> appears under <br> the displayed table-->A
+
 ```
+
+![View data Sub-menu](documentation/view-data-sub-menu.png)
+![Display Table data](documentation/table-display.png)
+--------------------------------
+- Update Weekly Sales sub-menu
+
 ```mermaid
 flowchart TB
 A[Main Menu]-->AC
-AC(Update Weekly Sales)-->ABP(Choose Product Range)
-ABP-->W[[Choose Week Number - Type in the number between 1 and 52]]
-W-->TYPE[[Type In Number of Units Sold per Chosen Week - one by one for each item]]
-TYPE--returns after updating data-->A
+AC(Update Weekly Sales<br>sub-menu)-->ABP(Choose Product Range<br>sub-menu)
+ABP-->W[[Choose Week Number <br>Type in the number between 1 and 52]]
+W-->TYPE[[Type in Number of Units Sold for Chosen Week <br> one by one for each item]]
+CALC--Main Menu<br> appears after <br>updating data-->A
+TYPE-.-CALC([Calculation of Average Sales<br>Updating Sales Forecast<br>Updating Forward Stock Plan])
 ```
-  
+----------------
+- Update Orders sub-menu
+
 ```mermaid
 flowchart TB
 A[Main Menu]-->AD
-AD(Update Orders)-->ABP(Choose Product Range)
-ABP-->W[[Choose Week Number - Type in the number between 1 and 52]]
-W-->CAO([Calculates Orders Recommendation and updates Deliveries and Stocks])
-CAO--return Main Menu after all calculations-->A
+AD(Update Orders<br>sub-menu)-->ABP(Choose Product Range<br>sub-menu)
+ABP-->W[[Choose Week Number<br>Type in the number between 1 and 52]]
+W-.-CAO([Calculates Orders Recommendation <br>Updates Plan of Deliveries<br>Update forward Stock Plan Stocks])
+CAO--Main Menu<br> appears after<br> all calculations<br>are stored-->A
 ```
+## Future features
+
+- Allow user to change Safety Margin and Minimum Stock level Constants in terminal window.
+
+Currently it may be done relatively easy by a software programmer making changes to dedicated file 'constants.py'
+
+- Allow user to update sales forecasts manually for all desired weeks for a particular item apart from automated sales forecast calculation
+
+Currently it can be done manually by typing in sales for one column/week at a time. User must be given option for multiple input by row, i.e. by product item for multiple weeks in one go
+
+- Allow user to input actual stocks on a weekly basis to account for discrepancies between planned and actual deliveries and shortages/surplus 
