@@ -8,6 +8,8 @@
     for a given product range and week number. Data is 
     presented in a table format for all weeks from the
     chosen week number to the end of year
+    
+    Page 2
 
     [2] Update Weekly Sales - type in sales for the chosen
     product range and week. The data can be updated 
@@ -17,6 +19,8 @@
     sales forecast and stocks.    
     Both Sales and Stocks are then stored in
     their respective worksheets
+    
+    Page 3
 
     [3] Update Orders - calculate orders recommendation 
     based on new sales, stocks and deliveries data for a 
@@ -24,6 +28,7 @@
     Deliveries, and Stocks worksheets
 
     --------------------------------------------
+    Page 4
     
     Product Ranges - product items under one umbrella brand.
     Currently there are two product ranges: Planters and
@@ -36,6 +41,8 @@
 
     Weekly Stocks - the number of units in stock at 
     (important!) the beginning of the week
+    
+    Page 5
 
     Orders - the number of units to be ordered in 
     a particular week (recommendation) taking into
@@ -49,6 +56,8 @@
     the order and receiving the delivery. The delivered
     goods become available for sale only from the next week
     after estimated arrival (Lead Time + 1)
+    
+    Page 6
 
     Forward Stock Plan - the number of units in stock 
     estimated for all future weeks at the current rate of 

@@ -4,7 +4,7 @@ from simple_term_menu import TerminalMenu
 from colorama import Fore, Back, Style
 from constants import *
 from menus import *
-from utilities import *
+from service import *
 
 
 def calculate_average_sales(product, sales_values, current_week_index):
@@ -393,8 +393,9 @@ def main():
                     pass
 
             elif (sub_view_choice == "[2] Ritter Sport"):
-                print("View Data for Ritter Sport menu")
                 clear_screen()
+                print("View Data for Ritter Sport menu")
+                
                 sub_sub_view_menu_index = sub_sub_view_menu.show()
                 sub_sub_view_choice = SUB_SUB_OPTIONS_VIEW[
                     sub_sub_view_menu_index]
@@ -534,6 +535,7 @@ def main():
 
         elif (option_choice == "[4] Glossary of Terms"):
 
+            clear_screen()
             print_glossary()
 
             input(

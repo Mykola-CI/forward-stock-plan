@@ -145,13 +145,21 @@ def print_table(worksheet, product_range, week_number):
 
     return None
 
-
-def print_glossary():
-    """Prints the glossary of terms from the glossary.txt file"""
+def print_glossary(marker='Page'):
+    """
+    Prints the glossary of terms from the glossary.txt file, 
+    pausing at each marker
+    """
 
     with open('glossary.txt', 'r') as file:
-        glossary_text = file.read()
-        print(glossary_text)
+        glossary_text = ''
+        for line in file:
+            if marker in line:
+                print(glossary_text)
+                glossary_text = ''
+                input("Press enter to continue...")
+            glossary_text += line
+        print(glossary_text) 
 
     return None
 

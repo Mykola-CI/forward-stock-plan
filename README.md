@@ -129,7 +129,7 @@ WS-->W[[Choose Week Number <br>Type in the number between 1 and 52]]
 WSt-->W
 D-->W
 O-->W
-W--->TD[(Table Data displayed in terminal:<br> Rows-week numbers / Columns- Product Items)]
+W--->TD[(Table Data displayed in terminal:<br> Rows- Product Items/ Columns- Week Numbers)]
 TD-.-P([The data is presented for the period<br> from the chosen week to the end of year])
 TD--Main Menu <br> appears under <br> the displayed table-->A
 
