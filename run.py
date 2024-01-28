@@ -52,8 +52,8 @@ def update_sales_forecast(product, week_number):
         product, sales_values, current_week_index
     )
 
-    # Creates a list of lists extrapolating the average sales for
-    # for the set number of weeks or the remaining weeks of the year
+    # Creates a list of lists extrapolating the average sales
+    # for the pre-set number of weeks or the remaining weeks of the year
     if week_number < 52 - WEEKS_TO_FORECAST:
         sales_forecast = [
             [mean]*WEEKS_TO_FORECAST for mean in retrospective_average
@@ -74,7 +74,10 @@ def update_sales_forecast(product, week_number):
 def calculate_stocks_for_item(
     from_index, sales_row, deliveries_row, stocks_row
 ):
-    """Calculates stocks for an item from a given index in the list"""
+    """
+    Calculates stocks for an item from a given index in the list
+    to the end of year
+    """
 
     for k in range(from_index, len(sales_row)):
         if stocks_row[k-1] <= sales_row[k - 1]:
@@ -99,9 +102,6 @@ def update_forward_stocks(product, week_number):
     deliveries = Worksheets(WORKSHEET_TITLES[2])
     deliveries_values = deliveries.slice_past_weeks(product, week_number)
 
-    # forward_stock_plan = calculate_forward_stocks(
-    #     stocks_values, sales_values, deliveries_values
-    # )
     forward_stock_plan = []
     for i in range(len(stocks_values)):
         forward_stock_plan.append(
@@ -253,7 +253,8 @@ def input_sales_for_week(product_range, week_number):
 
 def choose_week():
     """
-    Prompts the user to choose a week number and returns the number
+    Prompts the user to choose a week number and returns 
+    the week number as integer
     """
     while True:
         try:
