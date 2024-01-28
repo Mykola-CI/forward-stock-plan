@@ -253,7 +253,7 @@ def input_sales_for_week(product_range, week_number):
 
 def choose_week():
     """
-    Prompts the user to choose a week number and returns 
+    Prompts the user to choose a week number and returns
     the week number as integer
     """
     while True:
@@ -396,7 +396,7 @@ def main():
             elif (sub_view_choice == "[2] Ritter Sport"):
                 clear_screen()
                 print("View Data for Ritter Sport menu")
-                
+
                 sub_sub_view_menu_index = sub_sub_view_menu.show()
                 sub_sub_view_choice = SUB_SUB_OPTIONS_VIEW[
                     sub_sub_view_menu_index]

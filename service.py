@@ -1,3 +1,9 @@
+"""
+Utility functions to work with the Google Sheet API, printing
+the tables or texts in terminal, defining the lead time for the given
+product range, and clearing the screen.
+"""
+
 import os
 import gspread
 from google.oauth2.service_account import Credentials
@@ -22,7 +28,7 @@ SHEET = GSPREAD_CLIENT.open('forward_stock_plan')
 
 class Worksheets:
     """
-    The Class to serve as a Major intermediary between the project logic
+    The Class serves as a Major intermediary between the project logic
     and the Google Sheet API. Retrieves objects and data from the API.
     Truncates the data and returns it to the project logic.
     """
@@ -145,10 +151,11 @@ def print_table(worksheet, product_range, week_number):
 
     return None
 
+
 def print_glossary(marker='Page'):
     """
-    Prints the glossary of terms from the glossary.txt file, 
-    pausing at each marker
+    Prints the glossary of terms from the glossary.txt file,
+    pausing at each marker to mimic the page turning.
     """
 
     with open('glossary.txt', 'r') as file:
@@ -159,7 +166,7 @@ def print_glossary(marker='Page'):
                 glossary_text = ''
                 input("Press enter to continue...")
             glossary_text += line
-        print(glossary_text) 
+        print(glossary_text)
 
     return None
 

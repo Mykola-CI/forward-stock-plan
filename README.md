@@ -1,6 +1,8 @@
 # FORWARD STOCK PLAN AUTOMATION
 
-Forward Stock Plan Automation is a Python terminal program, which is designed to aid to logistic and supply function of distribution and wholesaling companies in order to manage their stock levels and place timely orders. This business process is an everyday job if a distributor strives to avoid out-of-stock situations. An automation of the process becomes a must-have tool for importers, distributors and wholesalers
+Forward Stock Plan Automation is a Python terminal program, which is designed to aid to logistic and supply function of distribution and wholesaling companies in order to manage their stock levels and place timely orders. This business process is an everyday job if a distributor strives to avoid out-of-stock situations. An automation of the process becomes a must-have tool for importers, distributors and wholesalers.
+
+The project can be observed and tested [here](https://forward-stock-plan-73f29ce621b0.herokuapp.com/)
 
 ![Mock screens of the application deployed via Heroku](documentation/mock-screens-heroku.png)
 
@@ -186,6 +188,13 @@ __Major Blocks__
 
   - Serves as a cost-effective, cloud-based storage system for data in tabular format.
   - Acts as a pseudo-database, accessible and editable by users.
+
+![Weekly sales Worksheet](documentation/weekly-sales-workbook.png)
+![Weekly Stocks Worksheet](documentation/weekly-stocks-workbook.png)
+![Orders Worksheet](documentation/orders-workbook.png)
+![Deliveries Worksheet](documentation/deliveries-workbook.png)
+
+
 - Project Logic Module:
   - Contains functions that perform calculations and data processing according to business requirements.
   - Ensures that the business logic is encapsulated within the project, separate from data storage.
@@ -242,5 +251,23 @@ The main purpose of the Data Model is to retrieve, process, and store back data 
 - __Ensure Accessibility__: Google Sheets provides a user-friendly interface for non-technical users to view and input data, while the backend processing remains robust and automated.
 
 ## Testing
+### PEP8 Linter
 
+- run.py
+
+![run.py](documentation/pep8/run.png)
+
+- service.py
+
+![service.py](documentation/pep8/service.png)
+
+- menus.py
+
+![menus.py](documentation/pep8/menus.png)
+
+- constants.py
+
+![constants.py](documentation/pep8/constants.png)
+
+WARNING! I confirm that all my .py files contain last empty line, which might not be rendered or observed on GitHub
 

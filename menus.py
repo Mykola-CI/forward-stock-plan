@@ -1,3 +1,9 @@
+"""
+Constants for the menus, options and sub-options in the form of
+lists of strings.
+"""
+
+
 MAIN_MENU_OPTIONS = [
     "[1] View Data",
     "[2] Update Weekly Sales",
@@ -5,16 +11,22 @@ MAIN_MENU_OPTIONS = [
     "[4] Glossary of Terms",
     "[5] Exit"
 ]
+
+
 SUB_OPTIONS_UPDATE = [
     "[1] for Planters",
     "[2] for Ritter Sport",
     "[3] Back to Main Menu"
 ]
+
+
 SUB_OPTIONS_VIEW = [
     "[1] Planters",
     "[2] Ritter Sport",
     "[3] Back to Main Menu"
 ]
+
+
 SUB_SUB_OPTIONS_VIEW = [
     "[1] Weekly Sales",
     "[2] Weekly Stocks",
