@@ -233,8 +233,8 @@ def input_sales_for_week(product_range, week_number):
                         f"{week_number} :\n"
                     )
                 )
-                week_sales.append([amount])
                 if amount >= 0:
+                    week_sales.append([amount])
                     break
 
                 else:
