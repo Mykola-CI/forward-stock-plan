@@ -251,7 +251,7 @@ The main purpose of the Data Model is to retrieve, process, and store back data 
 - __Ensure Accessibility__: Google Sheets provides a user-friendly interface for non-technical users to view and input data, while the backend processing remains robust and automated.
 
 ## Testing
-### PEP8 Linter
+### Validator Testing. PEP8 Linter
 
 - run.py
 
@@ -291,6 +291,99 @@ I performed the following tests. All passed with expected result.
 - [x] Navigating menus checked. Clear of terminal checked
 
 ### Bugs
+
+1. _urllib3 2.0 issue on macOS_
+
+When I tried to get data from my google sheet and print out for the first time my terminal returned the warning 
+```
+NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, 
+currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. 
+See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn
+``` 
+This issue is known to occur with the system Python on macOS, where the SSL module is compiled with LibreSSL instead of OpenSSL. The removal of LibreSSL support in urllib3 version 2.0 means that it cannot be used with the system Python on macOS that is compiled with LibreSSL. 
+[urllib3 on GitHub](https://github.com/urllib3/urllib3/issues/3020)
+
+The warning itself does not prevent the code from running, but it indicates that the urllib3 package may not function correctly due to the SSL incompatibility. 
+
+Solution:
+  - Install Homebrew
+  - Install OpenSSL
+  - Install pyenv
+  - Configure Zsh for pyenv on macOS [pyenv GitHub](https://github.com/pyenv/pyenv/issues/2136)
+  - Set environment variables to point to the correct version of OpenSSL
+    [use_homebrew_openssl() function](https://github.com/pyenv/pyenv/blob/master/plugins/python-build/bin/python-build)
+  - Install Python with OpenSSL support. In my case it was Python 3.11.7
+
+2. _Validation bug in Input Weekly Sales_
+
+I discovered during testing that the weekly sales input worked incorrectly. When typing in negative numbers the validation scheme seemed to work fine: `While True` loop with `try` and `else` setting displayed the warning, then the correct prompt to input again the same item appeared. And it did not pass to the next item until the correct type value was keyed in. 
+
+However, when checked in the google sheet after an automated worksheet update, I found that all data including the negative numbers were actually stored to the spreadsheet shifting the cells down. Meaning all the values typed in to the input prompt including the wrong ones were appended to the list `week_sales` despite the correct manifestations on the terminal screen.
+
+After debugging with Python Tutor I found that there was a flaw in my logic:
+```
+week_sales.append([amount])
+    if amount >= 0:
+    break
+```
+The list `week_sales` was formed outside the `if` condition that checked for negative values. The solution was obvious:
+```
+    if amount >= 0:
+    week_sales.append([amount])
+    break
+```
+
+3. _PEP8 warning E712_
+331: E712 comparison to False should be 'if cond is False
+
+I used incorrect operator to compare a variable to Boolean
+`while quit_program == False:` 
+
+The correct usage would be 
+`while not quit_program:` or `while quit_program is False`.
+
+4. _IndexError: list assignment index out of range_
+
+```
+for k in range(from_index, len(sales_row)):
+        stocks_row = []
+        if stocks_row[k-1] <= sales_row[k - 1]:
+            stocks_row[k] = deliveries_row[k - 1]
+        else:
+            stocks_row[k] = (
+                stocks_row[k - 1]
+                + deliveries_row[k - 1]
+                - sales_row[k - 1]
+            )
+```
+In the above code snippet I tried to assign value to the variable `stock_row[k]` before `stock_row` has been properly initialized with a length that includes the index `k`. The correct one is:
+```
+stocks_row = [0]*len(sales_row)
+for k in range(from_index, len(sales_row)):
+
+        if stocks_row[k-1] <= sales_row[k - 1]:
+            stocks_row[k] = deliveries_row[k - 1]
+        else:
+            stocks_row[k] = (
+                stocks_row[k - 1]
+                + deliveries_row[k - 1]
+                - sales_row[k - 1]
+            )
+```
+Here the `stocks_row` is assigned the length of sales_row before the `for` loop. Whereas `sales_row` was previously defined as `sales_values[i]`, `sales_values` being a list of lists obtained from the google sheet using __gspread__ module.  
+
+5. _Negative stocks issue_
+
+- The __beginning stock for the current week__ is defined as:
+
+Begin Stock of previous week - Sales of previous week + Deliveries of previous week. 
+
+Once this formula was realized in Python inside the respective loop I discovered that the future stocks might appear negative which was wrong. The function that calculates stocks was modified to include the condition: `if stocks_row[k-1] <= sales_row[k - 1]:`
+
+This checks if future stocks are less or equal than forecasted sales, then the stocks must be equal the value of deliveries for that future week. Thus, when no deliveries are expected for that particular week, the beginning stock of next week will be equal to 0. 
+
+## Deployment
 
 
 
