@@ -271,3 +271,27 @@ The main purpose of the Data Model is to retrieve, process, and store back data 
 
 WARNING! I confirm that all my .py files contain last empty line, which might not be rendered or observed on GitHub
 
+### Manual Testing
+I performed the following tests. All passed with expected result.
+
+- [x] Validation of week number. Type in strings, negative numbers, floats 
+- [x] Validation of weekly sales input. Type in strings, negative numbers, floats
+- [x] Display tabular data. Checked for sales, stocks, deliveries, orders. The data conform with the google spreadsheet
+- [x] Display tabular data, time period. Data displayed from exactly the chosen week to the end of year 
+- [x] Sales forecast after weekly sales input. Calculation results checked, update of the sales worksheet checked
+- [x] Forward stocks plan update after weekly sales input. Calculation results checked, update of the stocks worksheet checked 
+- [x] Orders recommendation check. Orders calculated correctly, update of the orders worksheet checked
+- [x] Deliveries Plan update. Deliveries conform with orders, update of the deliveries worksheet checked
+- [x] Forward stock plan update after orders change. Calculation results checked, update of the stocks worksheet checked
+- [x] Big sales spikes check. No negative stocks confirmed. Leads to 0 stocks for a while until an updated order results in respective delivery.
+- [x] Beginning of a year check. No issues arise with calculating retrospective sales
+- [x] End of year check, sales forecasts. No issues arise related to out of boundary iteration.
+- [x] End of year check, orders. Orders continue to be planned even when deliveries are expected to arrive outside the period
+- [x] Glossary terminal print out check. Pages are turned by hitting enter, return to the main menu confirmed
+- [x] Navigating menus checked. Clear of terminal checked
+
+### Bugs
+
+
+
+
