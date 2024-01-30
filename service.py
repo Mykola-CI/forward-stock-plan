@@ -97,9 +97,9 @@ def update_worksheet_data(worksheet, product, week_number, table_data):
     start_column = week_index.col
 
     if product == PRODUCT_RANGE[0]:
-        start_row = PLANTERS_START_ROW
+        start_row = BRAND1_START_ROW
     elif product == PRODUCT_RANGE[1]:
-        start_row = len(PLANTERS) + PLANTERS_START_ROW + 1
+        start_row = len(BRAND1) + BRAND1_START_ROW + 1
     else:
         print(
             "Product range input error or the Product range"
@@ -175,9 +175,9 @@ def define_lead_time(product):
     """Defines the lead time for the given product range"""
 
     if product == PRODUCT_RANGE[0]:
-        lead_time = PLANTERS_LT
+        lead_time = BRAND1_LT
     elif product == PRODUCT_RANGE[1]:
-        lead_time = RITTER_LT
+        lead_time = BRAND2_LT
     else:
         print(
             'Product range input error or'

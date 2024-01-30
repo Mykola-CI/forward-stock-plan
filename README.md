@@ -371,20 +371,122 @@ for k in range(from_index, len(sales_row)):
                 - sales_row[k - 1]
             )
 ```
-Here the `stocks_row` is assigned the length of sales_row before the `for` loop. Whereas `sales_row` was previously defined as `sales_values[i]`, `sales_values` being a list of lists obtained from the google sheet using __gspread__ module.  
+Here the `stocks_row` is assigned the length of sales_row before the `for` loop. Whereas `sales_row` was previously defined as `sales_values[i]`, `sales_values` being a list of lists obtained from the google sheet using __gspread__ module and processed by the class Worksheets for further manipulation.  
 
 5. _Negative stocks issue_
 
 - The __beginning stock for the current week__ is defined as:
 
-Begin Stock of previous week - Sales of previous week + Deliveries of previous week. 
+Beginning Stock of previous week - Sales of previous week + Deliveries of previous week. 
 
-Once this formula was realized in Python inside the respective loop I discovered that the future stocks might appear negative which was wrong. The function that calculates stocks was modified to include the condition: `if stocks_row[k-1] <= sales_row[k - 1]:`
+During testing I discovered that the future stocks might appear negative which was wrong. The function that calculates stocks was modified to include the condition: `if stocks_row[k-1] <= sales_row[k - 1]:`
 
-This checks if future stocks are less or equal than forecasted sales, then the stocks must be equal the value of deliveries for that future week. Thus, when no deliveries are expected for that particular week, the beginning stock of next week will be equal to 0. 
+This condition checks if future stocks are less or equal than forecasted sales for that same week. If it is true the stocks must be assigned the value of deliveries for that particular week because business cannot sell what does not exist. Thus, when no deliveries are expected for that particular week, the beginning stock of next week will be equal to 0. 
 
 ## Deployment
 
+### To Local Computer 
 
+1. __Set Up the Google Sheet__ 
+
+1.1 Sign in to your Google Account
+
+Make sure you're signed in with your personal Google account.
+
+1.2. Create a Google Sheets file
+
+Navigate to Google Sheets (sheets.google.com) and click on the "+ Blank" button to create a new spreadsheet.
+
+1.3. Navigate to the Google API Library
+
+Go to the Google API Library (console.developers.google.com).
+
+1.4. Create a new project
+
+Click on the dropdown on the navbar to create a new project.
+
+1.5. Enable Google Sheets API
+
+Search for the "Google Sheets API" and enable it. This can take up to 10 seconds.
+
+1.6. Create Credentials
+
+In the "APIs and services" navbar on the left, go to the "Credentials tab". Click on "+ CREATE CREDENTIALS" and select "Service Account".
+
+1.6. Provide Service Account Details
+
+In the first step (service account details), provide a name for the service account, e.g., "supply-operator" and click on "Create and continue".
+
+1.7. Grant Service Account Access
+
+In the second step, grant the service account access to the project. You can select a role from the dropdown menu, such as "Project" > "Editor". Click on "Continue".
+
+1.8. Generate Key
+
+In the third step, click on "+ CREATE KEY" button. Select "JSON" as the key type, and click "Create". This will trigger the download of a JSON file which contains your service account credentials.
+
+![Creating API Key](documentation/create-key-api.png)
+
+1.9. Secure JSON file
+
+Save this file in a safe folder for further use. This file can be downloaded only once!
+
+1.10. Share the Google Sheets file with your Service Account
+
+In order for your service account to access your Google Sheets file, you need to share the file with it. You can do this by going to your Google Sheets file, clicking on the "Share" button in the top right corner above the worksheet, and entering the email address of your service account (you can find this in the JSON file you downloaded earlier).
+
+![Share Google Sheet](documentation/share-google-sheet.png)
+
+2. __Create Repositories__
+
+2.1. Register GitHub account if you don't have one
+
+2.2. Go to [My GitHub page](https://github.com/Mykola-CI/forward-stock-plan) 
+
+2.3. Fork the Repository
+
+Click on the "Fork" button at the top right corner of the page. This will create a copy of the repository in your GitHub account.
+
+2.4. Clone the Forked Repository
+
+Navigate to your forked repository on GitHub.
+Click on the "Code" button and copy the URL provided under "Clone with HTTPS" or "Clone with SSH" depending on your preference.
+
+2.5. Clone the Repository Locally
+
+Open your terminal or command prompt.
+Change the current working directory to the location where you want the cloned directory.
+Type git clone, and then paste the URL you copied earlier. For example:
+
+```git clone https://github.com/YOUR-USERNAME/YOUR-REPOSITORY```
+
+Press Enter to create your local clone
+
+2.6. Clone the Repository: 
+
+Clone the forked repository to your local machine using the command 
+
+```git clone https://github.com/yourusername/repository.git```
+
+2.7. Make Changes Locally and stage and Push them to your remote repository as needed. 
+
+3. __Install Python Libraries__
+
+Install the necessary Python libraries using pip or pip3. You will need the google-auth and gspread libraries. You can install them using the following command in your Python environment:
+
+```pip install --upgrade google-auth gspread```
+
+4. __Set up Python Client__
+
+The code template already contains the script required for setting up the client API.
+The only thing to do is to create JSON file.
+
+4.1. COPY the JSON key file you saved as per 1.9 of these instructions to your project root directory. 
+
+4.2. IMPORTANT! rename this file exactly `creds.json`
+
+5. __Preparing Data and Customize Settings in Python__
+
+5.1. Product titles and Week Numbers
 
 

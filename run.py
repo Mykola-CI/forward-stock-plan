@@ -316,11 +316,11 @@ def main():
     main_menu = TerminalMenu(
         MAIN_MENU_OPTIONS, title="\n Please choose an option:\n "
     )
-    sub_update_menu = TerminalMenu(
-        SUB_OPTIONS_UPDATE, title="\n Please choose a product range:\n"
-    )
+    # sub_update_menu = TerminalMenu(
+    #     SUB_OPTIONS_UPDATE, title="\n Please choose a product range:\n"
+    # )
     sub_view_menu = TerminalMenu(
-        SUB_OPTIONS_VIEW, title="\n Please choose a product range:\n"
+        SUB_OPTIONS, title="\n Please choose a product range:\n"
     )
     sub_sub_view_menu = TerminalMenu(
         SUB_SUB_OPTIONS_VIEW, title="\n Please choose a worksheet to view:\n"
@@ -332,7 +332,7 @@ def main():
         option_index = main_menu.show()
         option_choice = MAIN_MENU_OPTIONS[option_index]
 
-        if (option_choice == "[5] Exit"):
+        if (option_choice == MAIN_MENU_OPTIONS[-1]):
 
             quit_program = True
             print(
@@ -342,20 +342,21 @@ def main():
                 """
             )
 
-        elif (option_choice == "[1] View Data"):
+        elif (option_choice == MAIN_MENU_OPTIONS[0]):
             clear_screen()
             print("View Data menu")
             sub_view_menu_index = sub_view_menu.show()
-            sub_view_choice = SUB_OPTIONS_VIEW[sub_view_menu_index]
+            sub_view_choice = SUB_OPTIONS[sub_view_menu_index]
 
-            if (sub_view_choice == "[1] Planters"):
+            if (sub_view_choice == SUB_OPTIONS[0]):
                 clear_screen()
-                print("View Data for Planters menu")
+                print(f"View Data for {PRODUCT_RANGE[0]} menu")
                 sub_sub_view_menu_index = sub_sub_view_menu.show()
                 sub_sub_view_choice = SUB_SUB_OPTIONS_VIEW[
-                    sub_sub_view_menu_index]
+                    sub_sub_view_menu_index
+                ]
 
-                if (sub_sub_view_choice == "[1] Weekly Sales"):
+                if (sub_sub_view_choice == SUB_SUB_OPTIONS_VIEW[0]):
                     week_number = choose_week()
                     print_table(
                         WORKSHEET_TITLES[0],
@@ -363,7 +364,7 @@ def main():
                         week_number
                     )
 
-                elif (sub_sub_view_choice == "[2] Weekly Stocks"):
+                elif (sub_sub_view_choice == SUB_SUB_OPTIONS_VIEW[1]):
                     week_number = choose_week()
                     print_table(
                         WORKSHEET_TITLES[1],
@@ -371,7 +372,7 @@ def main():
                         week_number
                     )
 
-                elif (sub_sub_view_choice == "[3] Deliveries"):
+                elif (sub_sub_view_choice == SUB_SUB_OPTIONS_VIEW[2]):
                     week_number = choose_week()
                     print_table(
                         WORKSHEET_TITLES[2],
@@ -379,7 +380,7 @@ def main():
                         week_number
                     )
 
-                elif (sub_sub_view_choice == "[4] Orders"):
+                elif (sub_sub_view_choice == SUB_SUB_OPTIONS_VIEW[3]):
                     week_number = choose_week()
                     print_table(
                         WORKSHEET_TITLES[3],
@@ -388,19 +389,21 @@ def main():
                     )
 
                 elif (
-                    sub_sub_view_choice == "[5] Back to Product Range"
+                    sub_sub_view_choice == SUB_SUB_OPTIONS_VIEW[4]
                 ):
                     clear_screen()
                     pass
 
-            elif (sub_view_choice == "[2] Ritter Sport"):
+            elif (sub_view_choice == SUB_OPTIONS[1]):
                 clear_screen()
-                print("View Data for Ritter Sport menu")
+                print(f"View Data for {PRODUCT_RANGE[1]} menu")
 
                 sub_sub_view_menu_index = sub_sub_view_menu.show()
                 sub_sub_view_choice = SUB_SUB_OPTIONS_VIEW[
-                    sub_sub_view_menu_index]
-                if (sub_sub_view_choice == "[1] Weekly Sales"):
+                    sub_sub_view_menu_index
+                ]
+
+                if (sub_sub_view_choice == SUB_SUB_OPTIONS_VIEW[0]):
                     week_number = choose_week()
                     print_table(
                         WORKSHEET_TITLES[0],
@@ -408,7 +411,7 @@ def main():
                         week_number
                     )
 
-                elif (sub_sub_view_choice == "[2] Weekly Stocks"):
+                elif (sub_sub_view_choice == SUB_SUB_OPTIONS_VIEW[1]):
                     week_number = choose_week()
                     print_table(
                         WORKSHEET_TITLES[1],
@@ -416,7 +419,7 @@ def main():
                         week_number
                     )
 
-                elif (sub_sub_view_choice == "[3] Deliveries"):
+                elif (sub_sub_view_choice == SUB_SUB_OPTIONS_VIEW[2]):
                     week_number = choose_week()
                     print_table(
                         WORKSHEET_TITLES[2],
@@ -424,7 +427,7 @@ def main():
                         week_number
                     )
 
-                elif (sub_sub_view_choice == "[4] Orders"):
+                elif (sub_sub_view_choice == SUB_SUB_OPTIONS_VIEW[3]):
                     week_number = choose_week()
                     print_table(
                         WORKSHEET_TITLES[3],
@@ -432,43 +435,49 @@ def main():
                         week_number
                     )
 
-                elif (sub_sub_view_choice == "[5] Back to Product Range"):
+                elif (sub_sub_view_choice == SUB_SUB_OPTIONS_VIEW[4]):
                     clear_screen()
                     pass
 
-        elif (option_choice == "[2] Update Weekly Sales"):
+        elif (option_choice == MAIN_MENU_OPTIONS[1]):
             clear_screen()
             print("Update Weekly Sales menu")
-            sub_update_index = sub_update_menu.show()
-            sub_update_choice = SUB_OPTIONS_UPDATE[sub_update_index]
+            sub_update_index = sub_view_menu.show()
+            sub_update_choice = SUB_OPTIONS[sub_update_index]
 
-            if (sub_update_choice == "[1] for Planters"):
+            if (sub_update_choice == SUB_OPTIONS[0]):
                 clear_screen()
-                print("Update Weekly Sales for Planters menu")
+                print(
+                    f"Update Weekly Sales for {PRODUCT_RANGE[0]} menu"
+                )
                 run_update_sales(PRODUCT_RANGE[0])
 
-            elif (sub_update_choice == "[2] for Ritter Sport"):
+            elif (sub_update_choice == SUB_OPTIONS[1]):
                 clear_screen()
-                print("Update Weekly Sales for Ritter Sport menu")
+                print(
+                    f"Update Weekly Sales for {PRODUCT_RANGE[1]} menu"
+                )
                 run_update_sales(PRODUCT_RANGE[1])
 
-            elif (sub_update_choice == "[3] Back to Main Menu"):
+            elif (sub_update_choice == SUB_OPTIONS[2]):
                 clear_screen()
                 pass
 
-        elif (option_choice == "[3] Update Orders"):
+        elif (option_choice == MAIN_MENU_OPTIONS[2]):
             clear_screen()
             print("Update Orders menu")
-            sub_update_index = sub_update_menu.show()
-            sub_update_choice = SUB_OPTIONS_UPDATE[sub_update_index]
+            sub_update_index = sub_view_menu.show()
+            sub_update_choice = SUB_OPTIONS[sub_update_index]
 
-            if (sub_update_choice == "[1] for Planters"):
+            if (sub_update_choice == SUB_OPTIONS[0]):
                 clear_screen()
-                print("Update Orders for Planters menu")
+                print(
+                    f"Update Orders for {PRODUCT_RANGE[0]} menu"
+                )
                 week_number = choose_week()
                 print(
-                    "\n Calculating orders recommendation "
-                    "for Planters...")
+                    f"\n Calculating orders recommendation "
+                    f"for {PRODUCT_RANGE[0]}...")
                 next_order, deliveries, stocks = calculate_orders(
                     PRODUCT_RANGE[0], week_number
                     )
@@ -493,17 +502,19 @@ def main():
                     stocks
                 )
                 print(
-                    "\n Orders, deliveries and stocks for Planters "
-                    "have been updated."
+                    f"\n Orders, deliveries and stocks for "
+                    f"{PRODUCT_RANGE[0]} have been updated."
                 )
 
-            elif (sub_update_choice == "[2] for Ritter Sport"):
+            elif (sub_update_choice == SUB_OPTIONS[1]):
                 clear_screen()
-                print("Update Orders for Ritter Sport menu")
+                print(
+                    f"Update Orders for {PRODUCT_RANGE[1]} menu"
+                )
                 week_number = choose_week()
                 print(
-                    "\n Calculating orders recommendation "
-                    "for Ritter Sport...")
+                    f"\n Calculating orders recommendation "
+                    f"for {PRODUCT_RANGE[1]}...")
                 next_order, deliveries, stocks = calculate_orders(
                     PRODUCT_RANGE[1], week_number
                 )
@@ -527,14 +538,14 @@ def main():
                     stocks
                 )
                 print(
-                    "\n Orders, deliveries and stocks "
-                    "for Ritter Sport have been updated.")
+                    f"\n Orders, deliveries and stocks "
+                    f"for {PRODUCT_RANGE[1]} have been updated.")
 
-            elif (sub_update_choice == "[3] Back to Main Menu"):
+            elif (sub_update_choice == SUB_OPTIONS[2]):
                 clear_screen()
                 pass
 
-        elif (option_choice == "[4] Glossary of Terms"):
+        elif (option_choice == MAIN_MENU_OPTIONS[3]):
 
             clear_screen()
             print_glossary()

@@ -3,6 +3,8 @@ Constants for the menus, options and sub-options in the form of
 lists of strings.
 """
 
+from constants import *
+
 
 MAIN_MENU_OPTIONS = [
     "[1] View Data",
@@ -13,19 +15,11 @@ MAIN_MENU_OPTIONS = [
 ]
 
 
-SUB_OPTIONS_UPDATE = [
-    "[1] for Planters",
-    "[2] for Ritter Sport",
+SUB_OPTIONS = [
+    "[1] {}".format(PRODUCT_RANGE[0]),
+    "[2] {}".format(PRODUCT_RANGE[1]),
     "[3] Back to Main Menu"
 ]
-
-
-SUB_OPTIONS_VIEW = [
-    "[1] Planters",
-    "[2] Ritter Sport",
-    "[3] Back to Main Menu"
-]
-
 
 SUB_SUB_OPTIONS_VIEW = [
     "[1] Weekly Sales",

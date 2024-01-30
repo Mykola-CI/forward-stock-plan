@@ -18,7 +18,7 @@ PRODUCT_RANGE = ['PLANTERS', 'RITTER SPORT']
 
 
 # PLANTERS PRODUCTS
-PLANTERS = [
+BRAND1 = [
     'Roasted Almonds',
     'Salted Peanuts',
     'Mixed Nuts',
@@ -29,7 +29,7 @@ PLANTERS = [
 
 
 # RITTER SPORT PRODUCTS
-RITTER = [
+BRAND2 = [
     'Rum Raisings Hazelnut',
     'Marzipan',
     'Whole Hazelnut',
@@ -38,7 +38,7 @@ RITTER = [
 
 
 # PRODUCT RANGES BY BRANDS FOR FURTHER ACCESS TO ITEMS:
-PRODUCT_DICT = {'PLANTERS': PLANTERS, 'RITTER SPORT': RITTER}
+PRODUCT_DICT = {PRODUCT_RANGE[0]: BRAND1, PRODUCT_RANGE[1]: BRAND2}
 
 
 # MINIMUM ORDER QUANTITY IN RELATION TO SALES
@@ -49,18 +49,13 @@ SAFETY_MARGIN = 1.2
 MIN_STOCK_LEVEL = 1.2
 
 
-# UNITS PER CARTON
-PLANTERS_UPC = 6
-RITTER_UPC = 10
-
-
 # LEAD TIMES
-PLANTERS_LT = 3
-RITTER_LT = 2
+BRAND1_LT = 3
+BRAND2_LT = 2
 
 
 # The start row number for the Planters products
-PLANTERS_START_ROW = 3
+BRAND1_START_ROW = 3
 
 
 # Number of weeks to update sales forecasts
