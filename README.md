@@ -470,6 +470,8 @@ Clone the forked repository to your local machine using the command
 
 2.7. Make Changes Locally and stage and Push them to your remote repository as needed. 
 
+2.8 Don't forget to include your creds.json file to .gitignore so as to avoid pushing it to the public resource lik GitHub
+
 3. __Install Python Libraries__
 
 Install the necessary Python libraries using pip or pip3. You will need the google-auth and gspread libraries. You can install them using the following command in your Python environment:
@@ -485,8 +487,136 @@ The only thing to do is to create JSON file.
 
 4.2. IMPORTANT! rename this file exactly `creds.json`
 
-5. __Preparing Data and Customize Settings in Python__
+5. __Preparing the Worksheets__
 
-5.1. Product titles and Week Numbers
+5.1. Product titles and week numbers, worksheets
+
+Currently the project can handle 2 product ranges or two brands and any number of product items within one brand. Adding more brands will require some minor changes to Python code.
+
+ - Worksheets must be named like the ones shown on the pictures below
+ - Product items must be keyed in to any column preceding the set of numbers.
+ - Product items must be followed by the Brand Name or Product Range title in the same row
+ - Between Product ranges or Brands must be exactly 1(one) empty row
+ - Week numbers must be positioned in the top first row of the worksheet
+ - Week numbers must be integers from at least -4 to 52 including 0. The week 1 is interpreted as the first week of a year and weeks to the left are some last weeks of the previous year (recommended at least 4 weeks of the past year)
+ - the structure of the sales worksheet with product items, brands and weeks must be copied to the other worksheets 
+
+![Worksheet Names](documentation/worksheets-tabs.png) 
+
+![Worksheets product titles and week numbers](documentation/worksheet-template.png)
+
+5.2. Filling in the primary data
+
+- __Sales Worksheet__: numeric data must be positive integers or 0 filled out from week -4 to the end of year week 52.
+
+Note: I advice to fill out all cells for weekly sales both actual and forecasted sales to the year end because the sales data in combination with the beginning stocks are fundament for calculation of a reasonable order recommendation 
+
+- __Stocks Worksheet__: it is recommended to key in at least the actual beginning stock for the starting week, all other cells can be left empty
+- __Orders__ and __Deliveries__ numeric data can be left empty for a start 
+
+6. Setting up Constants in Python.
+
+You will need to open constants.py in your IDE or a text editor.
+
+6.1. Assign values to the following constants
+
+- Set Names for your product ranges or brand names (only 2 at this program setting)
+
+For example, 
+PRODUCT_RANGE = ["HEINZ", "HELLMANN'S"]
+
+Note: The brand names must be in order consistent to the one in your google sheet from top to bottom
+
+- Set product items within each brand
+
+BRAND1 = [
+    "Garlic Sauce",
+    "Sweet Chilli Sauce",
+    "Ketchup"
+]
+
+BRAND2 = [
+    "Mayonnaise Light",
+    "Mayonnaise"
+]
+
+Note: The product names must be in order consistent to the one in your google sheet from top to bottom
+
+- Set Lead Times
+
+BRAND1_LT = 3    
+
+BRAND2_LT = 2
+> Meaning 3 weeks for Heinz and 2 weeks for Hellmann's
+
+- Some other ratios to play with
+
+> This is the ratio for order recommendation in relation to weekly sale:
+
+SAFETY_MARGIN = 1.2
+
+> This is generally is a requirement for the minimum stock levels in relation to weekly sale:
+
+MIN_STOCK_LEVEL = 1.2
+
+> The row number of the first product item of Brand1 counting from top of the worksheet:   
+
+BRAND1_START_ROW = 3
+
+> The row number of the week numbers in a year span from top of the worksheet
+
+WEEKS_ROW_NUMBER = 1
+
+### Deployment to Heroku (optional)
+
+I use the Code Institute 'mock terminal' template, all required files needed for the deployment of mock terminal on Heroku are present in the project directory.  
+
+- Setting dependencies
+
+Before launching the application on Heroku you will need to set up dependencies of your project or in other terms references to the packages your project uses to run. Run the following command in terminal:
+
+`pip3 freeze > requirements.txt`
+
+- Create Heroku account if you don't have one
+
+- Login and hit 'create a new app'
+
+- Name your app, choose region and hit 'Create app'
+
+- Once the app has been created got to your app page and there to the 'settings' tab
+
+- from the settings page go to Config Vars by hitting 'Reveal Config Vars' button
+
+- Config Var 1: To the KEY field put CREDS, then copy the contents of your creds.json file and paste it to the VALUE field. Click 'Add'.
+
+- Config Var 2: To the KEY field put PORT, and to the VALUE field type in 8000
+
+- Config Var 3: To the KEY field put GSPREAD_SILENCE_WARNINGS, and to the VALUE field type in 1
+
+- On the same settings page underneath Config vars segment find Buildpacks segment and hit 'Add buildpack'
+
+- Select `python` button
+
+- Then hit 'Add buildpack' one more time and select `nodejs`
+
+- Now go to the Deploy tab on the app page, find Deployment method section and select - GitHub
+
+- In Connect to GitHub section click 'Connect to GitHub' button
+
+- Now as the picture in Connect to GitHub section changed typ in your project name on GitHub and click 'Search' button
+
+- Once it finds the project click 'Connect' button
+
+- Finally underneath the Connect to GitHub section choose between Automatic Deploys or Manual deploy
+
+- Now you can hit view and copy the link for further reference
+
+## Technologies used
+
+
+
+
+
+
 
 
