@@ -613,10 +613,53 @@ Before launching the application on Heroku you will need to set up dependencies 
 
 ## Technologies used
 
+- Languages:
 
+  - [Python 3.11.7](https://www.python.org/downloads/release/python-3117/): used to anchor the project and direct all application behavior
 
+  - [JavaScript](https://www.javascript.com/): used to provide the start script needed to run the Code Institute mock terminal in the browser
 
+  - [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML) used to construct the elements involved in building the mock terminal in the browser
 
+- Libraries, Modules:
 
+  - [os](https://docs.python.org/3/library/os.html). Used to clear the terminal when navigating menus
+
+  - [Simple Terminal Menu](https://pypi.org/project/simple-term-menu/)  used to implement the menu.
+
+  - [Colorama](https://pypi.org/project/colorama/) used to add colors and styles to the project.
+
+  - [Tabulate](https://pypi.org/project/tabulate/) used to print tabular data to console or terminal
+
+  - [Statistics](https://docs.python.org/3/library/statistics.html) used for calculating averages
+
+- Services and Tools:
+
+  - [VSCode](https://code.visualstudio.com/) was used as the main tool to write and edit code.
+
+  - [Git](https://git-scm.com/) used for the version control of the website.
+
+  - [GitHub](https://github.com/) used to host the code of the website.
+
+  - [GIMP](https://www.gimp.org/) used to make and resize images for the README file.
+
+  - [Mermaid Charts](https://www.mermaidchart.com/) used to create flowchart diagrams in markdown
+
+  - [Heroku](htpps://www.heroku.com) used for the remote deployment
+
+## Credits
+
+- Code Institute for the deployment terminal.
+
+- Code Institute for the tutorial on setting up Google Sheets and API credentials as made known in the Love-Sandwiches walkthrough project.
+
+- The code line to transpose 2D tabular data from rows to columns and vice versa taken from [Note NKMK](https://note.nkmk.me/en/python-list-transpose/). 
+
+- Terminal menu: [Simple Terminal Menu](https://pypi.org/project/simple-term-menu/).
+
+## Acknowledgements
+
+- [Yuliia Konovalova](https://github.com/IuliiaKonovalova) for the mentor's support during the project
+- [ArjanCodes](https://www.arjancodes.com/) for his Python tutorials on [youtube](https://www.youtube.com/@ArjanCodes) 
 
 

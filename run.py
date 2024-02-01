@@ -303,7 +303,7 @@ def run_update_sales(product):
 
 
 def main():
-    """Main function"""
+    """Main function that runs menus and launches functions"""
 
     print(
         f"""
