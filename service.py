@@ -149,6 +149,8 @@ def print_table(worksheet, product_range, week_number):
         )
     )
 
+    print('\n Scroll up and down to review the table.')
+
     return None
 
 
