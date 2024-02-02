@@ -67,17 +67,22 @@ The application assumes easy settings for adding both new product ranges and new
 ## Features
 The application is run in terminal. Once being launched it displays a welcome message and a main menu.
 
+Although the Main Menu consists of 5 options, the first 3 of them, namely View Data, Update Weekly Sales and Update Orders, must be recognized as 3 different Standard Operational Procedures of the program operator (in other words - User) which can be run independently from each other. Each of them can be shortly described as follows:
+- View to take decisions or view as a followup of other Procedures
+- Update actual sale for the last week or amend sales forecasts
+- Launch Order Recommendation (or Update Order) Procedure if needed  
+
 ### Navigating menus
 
 ![Main Menu](documentation/main-menu.png)
 
 - Main menu
-    - _[1] View Data_ - view sales, stocks, orders, deliveries
+    - [1] _View Data_ - view sales, stocks, orders, deliveries
     for a given product range and week number. Data is 
     presented in a table format for all weeks from the
     chosen week number to the end of year
 
-    - _[2] Update Weekly Sales_ - type in sales for the chosen
+    - [2] _Update Weekly Sales_ - type in sales for the chosen
     product range and week. The data can be updated 
     for any chosen week to record either actual sales or 
     update forecasts. Once all items for the product range 
@@ -100,8 +105,10 @@ The application is run in terminal. Once being launched it displays a welcome me
 
     - [5] _Exit_ - the correct way to exit the application without hard reset
 
--  _[1] View Data_, _[2] Update Weekly Sales_, [3] _Update Orders_ sub-menu, which is common for these 3:
-    - choose the product range to work with in order to View Data, Update Weekly Sales or Update Orders.
+-  Choose Product Range Sub-Menu:
+
+This sub-menu is common for the 3 main Procedures: [1] _View Data_, [2] _Update Weekly Sales_, [3] _Update Orders_
+-   - User is prompted to choose the product range to work with in order to View Data, Update Weekly Sales or Update Orders.
 
 ![Sub-menus](documentation/sub-menu-products.png)
 
@@ -165,7 +172,7 @@ flowchart TB
 A[Main Menu]-->AD
 AD(Update Orders<br>sub-menu)-->ABP(Choose Product Range<br>sub-menu)
 ABP-->W[[Choose Week Number<br>Type in the number between 1 and 52]]
-W-.-CAO([Calculates Orders Recommendation <br>Updates Plan of Deliveries<br>Update forward Stock Plan Stocks])
+W-.-CAO([Calculates Orders Recommendation <br>Updates Plan of Deliveries<br>Updates Forward Stock Plan])
 CAO--Main Menu<br> appears after<br> all calculations<br>are stored-->A
 ```
 ### Future features
@@ -621,23 +628,27 @@ Before launching the application on Heroku you will need to set up dependencies 
 
 - Languages:
 
-  - [Python 3.11.7](https://www.python.org/downloads/release/python-3117/): used to anchor the project and direct all application behavior
+  - [Python 3.11.7](https://www.python.org/downloads/release/python-3117/): used to anchor the project and direct all application behavior.
 
-  - [JavaScript](https://www.javascript.com/): used to provide the start script needed to run the Code Institute mock terminal in the browser
+  - [JavaScript](https://www.javascript.com/): used to provide the start script needed to run the Code Institute mock terminal in the browser.
 
-  - [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML) used to construct the elements involved in building the mock terminal in the browser
+  - [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML) used to construct the elements involved in building the mock terminal in the browser.
 
 - Libraries, Modules:
 
-  - [os](https://docs.python.org/3/library/os.html). Used to clear the terminal when navigating menus
+  - [GSPREAD](https://docs.gspread.org/en/latest/) Module used for Data Exchange between the project's Python and the Google Sheets   
 
-  - [Simple Terminal Menu](https://pypi.org/project/simple-term-menu/)  used to implement the menu.
+  - [os](https://docs.python.org/3/library/os.html) used to clear the terminal when navigating menus.
 
-  - [Colorama](https://pypi.org/project/colorama/) used to add colors and styles to the project.
+  - [Simple Terminal Menu](https://pypi.org/project/simple-term-menu/)  used to implement the menus and sub-menus to enhance User experience while working in terminal mode.
 
-  - [Tabulate](https://pypi.org/project/tabulate/) used to print tabular data to console or terminal
+  - [Colorama](https://pypi.org/project/colorama/) used to add colors to the terminal outputs.
 
-  - [Statistics](https://docs.python.org/3/library/statistics.html) used for calculating averages
+  - [Tabulate](https://pypi.org/project/tabulate/) used to print tabular data to console or terminal in a presentable form
+
+  - [Statistics](https://docs.python.org/3/library/statistics.html) used for calculating average weekly sales
+
+  - [Math](https://docs.python.org/3/library/math.html) used for rounding floats
 
 - Services and Tools:
 

@@ -264,13 +264,17 @@ def input_sales_for_week(product_range, week_number):
 
                 else:
                     print(
-                        f"\n Sorry. The amount must be positive.\n"
-                        f"Try again for {item}.")
+                        f"\n {Fore.RED}"
+                        f"Sorry. The amount must be positive.\n"
+                        f"{Style.RESET_ALL}"
+                        f"\n Try again for {item}.")
 
             except ValueError as er:
                 print(
-                    f"\n You entered {er}. Please enter a positive "
+                    f"\n {Fore.RED}"
+                    f"You entered {er}. Please enter a positive "
                     "integer or 0."
+                    f"{Style.RESET_ALL}"
                 )
 
     return week_sales
@@ -287,11 +291,18 @@ def choose_week():
             if 1 <= week_number <= 52:
                 break
             else:
-                print("\n Sorry. Week number must be between 1 and 52.\n")
+                print(
+                    f"\n {Fore.RED}"
+                    f"Sorry. Week number must be between 1 and 52.\n"
+                    f"{Style.RESET_ALL}"
+                )
         except ValueError as err:
             print(
+                f"\n {Fore.RED}"
                 f"You entered {err}.\n Please enter a number "
-                "between 1 and 52.")
+                "between 1 and 52."
+                f"{Style.RESET_ALL}"
+            )
 
     return week_number
 
@@ -331,11 +342,13 @@ def main():
     """Main function that runs menus and launches functions."""
 
     print(
+        f"\n{Fore.GREEN}"
         f"""
         WELCOME TO THE FORWARD STOCK PLAN AUTOMATION
         --------------------------------------------
         Refer to the Glossary of Terms for guidance and definitions.
         """
+        f"{Style.RESET_ALL}"
     )
 
     main_menu = TerminalMenu(
@@ -355,18 +368,21 @@ def main():
         option_choice = MAIN_MENU_OPTIONS[option_index]
 
         if (option_choice == MAIN_MENU_OPTIONS[-1]):
+            clear_screen()
 
             quit_program = True
             print(
+                f"\n{Fore.GREEN}"
                 f"""
                 Thank you for using the Forward Stock Plan Automation.
                 ------------------------------------------------------
                 """
+                f"{Style.RESET_ALL}"
             )
 
         elif (option_choice == MAIN_MENU_OPTIONS[0]):
             clear_screen()
-            print("View Data menu")
+            print(Fore.GREEN + "View Data menu" + Style.RESET_ALL)
             sub_view_menu_index = sub_view_menu.show()
             sub_view_choice = SUB_OPTIONS[sub_view_menu_index]
 
@@ -463,7 +479,7 @@ def main():
 
         elif (option_choice == MAIN_MENU_OPTIONS[1]):
             clear_screen()
-            print("Update Weekly Sales menu")
+            print(Fore.GREEN + "Update Weekly Sales menu" + Style.RESET_ALL)
             sub_update_index = sub_view_menu.show()
             sub_update_choice = SUB_OPTIONS[sub_update_index]
 
@@ -487,7 +503,7 @@ def main():
 
         elif (option_choice == MAIN_MENU_OPTIONS[2]):
             clear_screen()
-            print("Update Orders menu")
+            print(Fore.GREEN + "Update Orders menu" + Style.RESET_ALL)
             sub_update_index = sub_view_menu.show()
             sub_update_choice = SUB_OPTIONS[sub_update_index]
 

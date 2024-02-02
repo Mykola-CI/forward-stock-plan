@@ -139,11 +139,14 @@ def print_table(worksheet, product_range, week_number):
 
     product_items = PRODUCT_DICT[product_range]
     row_ids = [week_number + i for i in range(len(worksheet_values[0]))]
+
     print(
-        f"""
-        {worksheet} for {product_range} as from the week {week_number}:
-        """
+        f"\n{Fore.GREEN}"
+        f"{worksheet} for {product_range}"
+        f" as from the week {week_number}:"
+        f"{Style.RESET_ALL}"
     )
+
     print(
         tabulate(
             turn_table_vertical, headers=product_items, showindex=row_ids,
@@ -152,7 +155,10 @@ def print_table(worksheet, product_range, week_number):
         )
     )
 
-    print('\n Scroll up and down to review the table.')
+    print(
+        Fore.GREEN + '\n Scroll up and down to review the table.'
+        + Style.RESET_ALL
+    )
 
     return None
 
@@ -185,8 +191,11 @@ def define_lead_time(product):
         lead_time = BRAND2_LT
     else:
         print(
+            Fore.RED +
             'Product range input error or'
-            'the Product range does not exist')
+            'the Product range does not exist'
+            + Style.RESET_ALL
+        )
 
     return lead_time
 
