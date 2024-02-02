@@ -11,26 +11,29 @@ def calculate_average_sales(product, sales_values, current_week_index):
     """
     Calculates average sales for a given product range and week number
     as a mean of sales for the last 5 weeks including the current week
+    Return a list of integers.
     """
-    # Slice the sales list of lists for a given product range
+    # Slice the sales list of lists for a given product range.
     product_range_sale = [
         sublist for sublist in sales_values if product in sublist
     ]
 
     # Slice the last 5 weeks including the current week
-    # Averages for the first 4 weeks sliced from index `0`
+    # Averages for the first 4 weeks sliced from index `0`.
     retrospective_sale_strings = [
         sublist[max(0, current_week_index - 4):current_week_index + 1]
         for sublist in product_range_sale
     ]
 
     # Convert the strings to integers by mapping `int` function
-    # to items in the sub-lists
+    # to items in the sub-lists. (Note: `sales_values` is
+    # a list of lists of strings obtained from .get_values() method).
     retrospective_sales = [
         list(map(int, sublist)) for sublist in retrospective_sale_strings
     ]
 
-    # Calculate the average sales for each product item
+    # Calculate the average sales for each product item wrapped in
+    # the list comprehension.
     average_sales = [
         math.ceil(statistics.mean(lst)) for lst in retrospective_sales
     ]
@@ -40,8 +43,9 @@ def calculate_average_sales(product, sales_values, current_week_index):
 
 def update_sales_forecast(product, week_number):
     """
-    Updates the sales spreadsheet for a given product range
-    and week number
+    Update Weekly Sales forecast based on the calculated averages
+    and store the updated forecast to the Weekly Sales worksheet
+    for a given product range and week number.
     """
     sales = Worksheets(WORKSHEET_TITLES[0])
     sales_values = sales.get_values()
@@ -52,8 +56,9 @@ def update_sales_forecast(product, week_number):
         product, sales_values, current_week_index
     )
 
-    # Creates a list of lists extrapolating the average sales
-    # for the pre-set number of weeks or the remaining weeks of the year
+    # Creates a list of lists by extrapolating the average sales
+    # to the number of weeks set by the constant
+    # `WEEKS_TO_FORECAST` or to the remaining weeks of a year.
     if week_number < 52 - WEEKS_TO_FORECAST:
         sales_forecast = [
             [mean]*WEEKS_TO_FORECAST for mean in retrospective_average
@@ -75,8 +80,9 @@ def calculate_stocks_for_item(
     from_index, sales_row, deliveries_row, stocks_row
 ):
     """
-    Calculates stocks for an item from a given index in the list
-    to the end of year
+    Calculates future weekly stocks for an item (associated with
+    a row in the worksheet) starting from a given index in the list
+    to the end of that list. Returns a list of integers.
     """
 
     for k in range(from_index, len(sales_row)):
@@ -93,7 +99,12 @@ def calculate_stocks_for_item(
 
 
 def update_forward_stocks(product, week_number):
-    """Stores forward stock plan to the spreadsheet"""
+    """Calculate and store forward stock plan to
+    the Weekly Stocks worksheet for a given product range
+    starting from a given week to the end of year. Called each time
+    when weekly sales forecast is updated without amending orders
+    and deliveries.
+    """
 
     stocks = Worksheets(WORKSHEET_TITLES[1])
     stocks_values = stocks.slice_past_weeks(product, week_number)
@@ -122,7 +133,7 @@ def calculate_orders(product, week_number):
     Calculates orders recommendation for a given product range
     starting from a chosen week to the end of year.
     Updates deliveries plan and forward stock plan.
-    Returns lists of lists for orders, deliveries and stocks
+    Returns lists of lists for orders, deliveries and stocks.
     """
 
     forward_stocks_object = Worksheets(WORKSHEET_TITLES[1])
@@ -143,10 +154,19 @@ def calculate_orders(product, week_number):
     stocks = []
     for i in range(len(sales_values)):
         sales_row = sales_values[i]
+
+        # Create lists of zeros of the same length as the sales list
+        # to clean the previous data which becomes irrelevant.
         orders_row = [0]*len(sales_row)
         deliveries_row = [0]*len(sales_row)
-        deliveries_row[:lead_time] = deliveries_values[i][:lead_time]
         stocks_row = [0]*len(sales_row)
+
+        # Set deliveries for the goods already in transit
+        # as these deliveries cannot be cancelled or amended.
+        deliveries_row[:lead_time] = deliveries_values[i][:lead_time]
+
+        # Set the initial stocks for the beginning of the current week
+        # being actual values as opposed to those of the forward stocks.
         stocks_row[0] = forward_stocks_values[i][0]
 
         stocks_row = calculate_stocks_for_item(
@@ -154,6 +174,8 @@ def calculate_orders(product, week_number):
         )
 
         for j in range(len(sales_row)):
+
+            # Calculate the average forecasted sales for the lead time+.
             ave_sale_lead_time = math.ceil(
                 statistics.mean(sales_row[j:j+lead_time+2])
             )
@@ -171,6 +193,7 @@ def calculate_orders(product, week_number):
                     )
                     deliveries_row[j+lead_time] = orders_row[j]
 
+                    # Update stocks for item when new delivery arises:
                     if deliveries_row[j+lead_time] != 0:
 
                         stocks_row = calculate_stocks_for_item(
@@ -180,6 +203,8 @@ def calculate_orders(product, week_number):
                             stocks_row
                         )
 
+                # These elif and else statements are for special
+                # handling of the last weeks of year.
                 elif j + lead_time + 1 == len(sales_row):
                     orders_row[j] = max(
                         math.ceil(
@@ -203,7 +228,7 @@ def calculate_orders(product, week_number):
                         ),
                         0
                     )
-
+            # Stocks are sufficient and order is not needed.
             else:
                 orders_row[j] = 0
 
@@ -216,9 +241,9 @@ def calculate_orders(product, week_number):
 
 def input_sales_for_week(product_range, week_number):
     """
-    Prompts the user for sales data for a given week number
-    and returns the data as a list of lists: rows as product items
-    and one column of sales
+    Prompts the user to input sales data for a given week number
+    and returns the data as a list of lists: mimicking rows
+    as product items and one column of sales.
     """
 
     week_sales = []
@@ -253,8 +278,8 @@ def input_sales_for_week(product_range, week_number):
 
 def choose_week():
     """
-    Prompts the user to choose a week number and returns
-    the week number as integer
+    Prompt User to choose a week number and return
+    the week number as integer.
     """
     while True:
         try:
@@ -274,7 +299,7 @@ def choose_week():
 def run_update_sales(product):
     """
     Runs sequences and launches functions for updating sales data
-    and storing them into the spreadsheet
+    and storing them into the spreadsheet.
     """
     week_number = choose_week()
     week_sales = input_sales_for_week(product, week_number)
@@ -303,7 +328,7 @@ def run_update_sales(product):
 
 
 def main():
-    """Main function that runs menus and launches functions"""
+    """Main function that runs menus and launches functions."""
 
     print(
         f"""
@@ -316,9 +341,6 @@ def main():
     main_menu = TerminalMenu(
         MAIN_MENU_OPTIONS, title="\n Please choose an option:\n "
     )
-    # sub_update_menu = TerminalMenu(
-    #     SUB_OPTIONS_UPDATE, title="\n Please choose a product range:\n"
-    # )
     sub_view_menu = TerminalMenu(
         SUB_OPTIONS, title="\n Please choose a product range:\n"
     )
@@ -475,12 +497,14 @@ def main():
                     f"Update Orders for {PRODUCT_RANGE[0]} menu"
                 )
                 week_number = choose_week()
+
                 print(
                     f"\n Calculating orders recommendation "
                     f"for {PRODUCT_RANGE[0]}...")
                 next_order, deliveries, stocks = calculate_orders(
                     PRODUCT_RANGE[0], week_number
                     )
+
                 print("\n Storing data to the spreadsheet...")
 
                 update_worksheet_data(
@@ -512,13 +536,16 @@ def main():
                     f"Update Orders for {PRODUCT_RANGE[1]} menu"
                 )
                 week_number = choose_week()
+
                 print(
                     f"\n Calculating orders recommendation "
                     f"for {PRODUCT_RANGE[1]}...")
                 next_order, deliveries, stocks = calculate_orders(
                     PRODUCT_RANGE[1], week_number
                 )
+
                 print("\n Storing data to the spreadsheet...")
+
                 update_worksheet_data(
                     WORKSHEET_TITLES[3],
                     PRODUCT_RANGE[1],

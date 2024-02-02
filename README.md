@@ -82,9 +82,13 @@ The application is run in terminal. Once being launched it displays a welcome me
     for any chosen week to record either actual sales or 
     update forecasts. Once all items for the product range 
     have been typed in, the application calculates and updates 
-    sales forecast and stocks.    
-    Both Sales and Stocks are then stored in
-    their respective worksheets
+    sales forecast and future stocks. Both Sales and Stocks are then 
+    stored in their respective worksheets
+    
+    __Note:__ As opposed to updating future stocks in Update Orders procedure the future stocks in Update Weekly Sales procedure are calculated at the context of existing orders and deliveries allowing User to observe the effects of amended sales forecasts on forward stock plan situation. 
+
+    It is assumed that following the Update Weekly Sales procedure User can have an option to decide whether to launch the Update Orders procedure or leave it as is.    
+    
 
     - [3] _Update Orders_ - calculate orders recommendation 
     based on new sales, stocks and deliveries data for a 
@@ -94,7 +98,7 @@ The application is run in terminal. Once being launched it displays a welcome me
     - [4] _Glossary of Terms_ - basic glossary which provides guidance 
     on using options of the menu and terminology definitions
 
-    - [5] _Exit_ - The correct way to exit the application without hard reset
+    - [5] _Exit_ - the correct way to exit the application without hard reset
 
 -  _[1] View Data_, _[2] Update Weekly Sales_, [3] _Update Orders_ sub-menu, which is common for these 3:
     - choose the product range to work with in order to View Data, Update Weekly Sales or Update Orders.
@@ -151,6 +155,8 @@ W-->TYPE[[Type in Number of Units Sold for Chosen Week <br> one by one for each 
 CALC--Main Menu<br> appears after <br>updating data-->A
 TYPE-.-CALC([Calculation of Average Sales<br>Updating Sales Forecast<br>Updating Forward Stock Plan])
 ```
+
+
 ----------------
 - Update Orders sub-menu
 
@@ -166,7 +172,7 @@ CAO--Main Menu<br> appears after<br> all calculations<br>are stored-->A
 The application requires more time to develop and enhance features.
 - Allow user to change Safety Margin and Minimum Stock level Constants via terminal window.
 
-Currently it may be done relatively easy by a software programmer making changes to dedicated file 'constants.py'
+Currently it may be done relatively easy by a software programmer making changes to the dedicated file 'constants.py'
 
 - Allow user to update sales forecasts manually for all desired weeks for a particular item apart from automated sales forecast calculation
 
