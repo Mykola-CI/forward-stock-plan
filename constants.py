@@ -3,7 +3,6 @@ Business and API related constants.
 Refer to the README.md for more details.
 """
 
-
 # WORKSHEET TITLES IN THE SPREADSHEET
 WORKSHEET_TITLES = [
     'Weekly Sales',

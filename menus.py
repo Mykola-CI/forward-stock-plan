@@ -21,6 +21,7 @@ SUB_OPTIONS = [
     "[3] Back to Main Menu"
 ]
 
+
 SUB_SUB_OPTIONS_VIEW = [
     "[1] Weekly Sales",
     "[2] Weekly Stocks",

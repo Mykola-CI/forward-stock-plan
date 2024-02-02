@@ -36,25 +36,26 @@ class Worksheets:
     def __init__(self, worksheet_to_get):
         self.worksheet_to_get = worksheet_to_get
 
-    # gets all values from the worksheet in the form of list of lists
+    # Get all values from the worksheet in the form of list of lists.
     def get_values(self):
         self.retrieved_values = SHEET.worksheet(
             self.worksheet_to_get).get_all_values()
         return self.retrieved_values
 
-    # gets the index of the week number in the retrieved list of lists
+    # Get the index of the week number in the retrieved list of lists.
     def get_week_index(self, week_number):
         self.get_values()
         first_row = self.retrieved_values[WEEKS_ROW_NUMBER - 1]
         current_week_index = first_row.index(str(week_number))
         return current_week_index
 
-    # gets the worksheet object from the Google Sheet API
+    # Get the worksheet object from the Google Sheet API.
     def get_gspread_worksheet(self):
         return SHEET.worksheet(self.worksheet_to_get)
 
     # Slice the columns of the worksheet from the given week number.
-    # The goal is to optimize the computation time when iterating
+    # The goal is to avoid iteration through irrelevant list items
+    # in further manipulations.
     def slice_past_weeks(self, product, week_number):
         self.get_values()
         current_week_index = self.get_week_index(week_number)
@@ -85,7 +86,7 @@ def transform_cell_coordinates(row, col):
 
 def update_worksheet_data(worksheet, product, week_number, table_data):
     """
-    Utility function. Transfers the passed list of lists to
+    Utility function. Transfers (stores) the passed list of lists to
     the required worksheet for a given Product Range and
     from given Week Number onwards.
     """
@@ -113,6 +114,7 @@ def update_worksheet_data(worksheet, product, week_number, table_data):
     end_column = start_column + len(table_data[0])
     end_cell_position = transform_cell_coordinates(end_row, end_column)
 
+    # Range of cells to update in the notation required by gspread.
     cells_range = start_cell_position + ':' + end_cell_position
 
     gspread_object.update(cells_range, table_data)
@@ -123,7 +125,8 @@ def update_worksheet_data(worksheet, product, week_number, table_data):
 def print_table(worksheet, product_range, week_number):
     """
     Prints the table of the chosen worksheet (sales, stocks, orders,
-    or deliveries for a given product range and week number
+    or deliveries for a given product range and week number into
+    the terminal.
     """
     worksheet_instance = Worksheets(worksheet)
     worksheet_values = worksheet_instance.slice_past_weeks(
