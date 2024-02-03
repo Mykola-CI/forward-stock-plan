@@ -388,7 +388,7 @@ def main():
 
             if (sub_view_choice == SUB_OPTIONS[0]):
                 clear_screen()
-                print(f"View Data for {PRODUCT_RANGE[0]} menu")
+                print(f"\n View Data for {PRODUCT_RANGE[0]} menu")
                 sub_sub_view_menu_index = sub_sub_view_menu.show()
                 sub_sub_view_choice = SUB_SUB_OPTIONS_VIEW[
                     sub_sub_view_menu_index
@@ -434,7 +434,7 @@ def main():
 
             elif (sub_view_choice == SUB_OPTIONS[1]):
                 clear_screen()
-                print(f"View Data for {PRODUCT_RANGE[1]} menu")
+                print(f"\n View Data for {PRODUCT_RANGE[1]} menu")
 
                 sub_sub_view_menu_index = sub_sub_view_menu.show()
                 sub_sub_view_choice = SUB_SUB_OPTIONS_VIEW[
