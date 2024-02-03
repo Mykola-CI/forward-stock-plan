@@ -134,7 +134,7 @@ def print_table(worksheet, product_range, week_number):
     )
 
     # transpose the table to print it vertically using '*' unpacking
-    # and zip() function to pair the values
+    # and zip() function to pair the values - as taken from Note NKMK
     turn_table_vertical = list(zip(*worksheet_values))
 
     product_items = PRODUCT_DICT[product_range]

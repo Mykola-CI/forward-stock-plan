@@ -195,7 +195,7 @@ Currently the application deals with the beginning and the end of the year mostl
 
 The Data Model for the Forward Stock Plan Automation project is designed to efficiently manage and automate stock levels control by interacting with Google Sheets and processing data through a Python-based logic module. The rationale behind this model is to leverage the accessibility and simplicity of Google Sheets while utilizing Python for its powerful data manipulation capabilities.
 
-__Major Blocks__
+### Major Blocks
 
 - Google Sheets:
 
@@ -255,13 +255,25 @@ P-.-PUSH>Push Data]-.-G
 
 ```
 
-__Rationale__
+__Rationale__:
 
 The main purpose of the Data Model is to retrieve, process, and store back data related to sales, stocks, deliveries, and orders. The chosen model is structured to:
 - __Maximize Efficiency__: By minimizing API calls, the model reduces latency and potential rate limits associated with frequent data retrieval and updates
 - __Enhance Organization__: The separation of data storage (Google Sheets) and processing logic (Python module) ensures a clean architecture and easier maintenance.
 - __Improve Scalability__: The use of Python allows for complex data processing that can be scaled as business requirements grow.
 - __Ensure Accessibility__: Google Sheets provides a user-friendly interface for non-technical users to view and input data, while the backend processing remains robust and automated.
+
+### Flowcharts of the Project's Logic
+
+These flowcharts were worked out before the project for the major procedures and fined tuned in the process.
+
+- Update Weekly Sales  
+
+![Update Weekly sales](documentation/update-sales-flowchart.jpeg)
+
+- Update Orders
+
+![Update Orders](documentation/update-orders-flowchart.jpeg)
 
 ## Testing
 ### Validator Testing. PEP8 Linter
@@ -328,7 +340,7 @@ Solution:
     [use_homebrew_openssl() function](https://github.com/pyenv/pyenv/blob/master/plugins/python-build/bin/python-build)
   - Install Python with OpenSSL support. In my case it was Python 3.11.7
 
-2. _Validation bug in Input Weekly Sales_
+2. _Validation fixes in Input Weekly Sales_
 
 I discovered during testing that the weekly sales input worked incorrectly. When typing in negative numbers the validation scheme seemed to work fine: `While True` loop with `try` and `else` setting displayed the warning, then the correct prompt to input again the same item appeared. And it did not pass to the next item until the correct type value was keyed in. 
 
