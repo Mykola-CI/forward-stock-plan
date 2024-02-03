@@ -278,6 +278,8 @@ These flowcharts were worked out before the project for the major procedures and
 ## Testing
 ### Validator Testing. PEP8 Linter
 
+WARNING! I confirm that all my .py files contain last empty line, whereas on GitHub empty lines at the bottom of files are not rendered and cannot be observed.
+
 - run.py
 
 ![run.py](documentation/pep8/run.png)
@@ -294,7 +296,7 @@ These flowcharts were worked out before the project for the major procedures and
 
 ![constants.py](documentation/pep8/constants.png)
 
-WARNING! I confirm that all my .py files contain last empty line, which might not be rendered or observed on GitHub
+WARNING! I confirm that all my .py files contain last empty line, whereas on GitHub empty lines at the bottom of files are not rendered and cannot be observed.
 
 ### Manual Testing
 I performed the following tests. All passed with expected result.
